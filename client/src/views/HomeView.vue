@@ -14,9 +14,6 @@
             Learn More
           </v-btn>
         </div>
-        <div class="mt-6">
-          <span class="text-caption text-medium-emphasis">Trusted by over 10,000+ home cooks and meal preppers</span>
-        </div>
       </v-col>
       <v-col cols="12" md="6">
         <v-img src="/img/home-hero.webp" alt="Yes Chef meal planning" class="rounded-lg" height="500" cover />
