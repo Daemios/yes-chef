@@ -28,26 +28,26 @@
             <v-icon class="mr-1">mdi-nutrition</v-icon> Nutrition
           </v-tab>
         </v-tabs>
+          <v-divider vertical class="mx-4"></v-divider>
         
-        <v-divider vertical class="mx-4"></v-divider>
-        
-        <v-btn icon variant="text" class="text-white mx-1">
-          <v-icon>mdi-bell</v-icon>
-          <v-badge color="accent" content="2" dot></v-badge>
+        <!-- Notification Button -->
+        <v-btn icon variant="text" class="text-white mr-2" @click="showNotificationPanel = true">
+          <v-badge color="accent" content="2" dot>
+            <v-icon icon="mdi-bell"></v-icon>
+          </v-badge>
         </v-btn>
         
+        <!-- User Menu -->
         <v-menu transition="slide-y-transition">
           <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" class="ml-2" variant="text">
+            <v-btn v-bind="props" class="ml-1" variant="text">
               <v-avatar size="32" color="accent" class="mr-2">
                 <v-img src="https://randomuser.me/api/portraits/women/85.jpg" alt="User"></v-img>
               </v-avatar>
               <span class="text-white d-none d-lg-inline">My Account</span>
               <v-icon class="text-white ml-1">mdi-chevron-down</v-icon>
             </v-btn>
-          </template>
-          
-          <v-list width="220">
+          </template>            <v-list width="220">
             <v-list-item prepend-icon="mdi-account" title="Profile" to="/account/profile"></v-list-item>
             <v-list-item prepend-icon="mdi-cog" title="Settings" to="/account/settings"></v-list-item>
             <v-divider></v-divider>
@@ -109,13 +109,17 @@
     <v-divider></v-divider>
     
     <!-- Authenticated User Mobile Menu -->
-    <template v-if="authStore.isAuthenticated">
-      <v-list density="compact" nav>
+    <template v-if="authStore.isAuthenticated">      <v-list density="compact" nav>
         <v-list-item title="Dashboard" prepend-icon="mdi-view-dashboard" to="/dashboard"></v-list-item>
         <v-list-item title="Shopping List" prepend-icon="mdi-cart" to="/shopping"></v-list-item>
         <v-list-item title="Nutrition" prepend-icon="mdi-nutrition" to="/dietary"></v-list-item>
         <v-list-item title="Meal History" prepend-icon="mdi-history" to="/history"></v-list-item>
         <v-list-item title="My Account" prepend-icon="mdi-account-circle" to="/account"></v-list-item>
+        <v-list-item title="Notifications" prepend-icon="mdi-bell" @click="showNotificationPanel = true">
+          <template v-slot:append>
+            <v-badge color="accent" content="2" dot></v-badge>
+          </template>
+        </v-list-item>
       </v-list>
       
       <v-divider></v-divider>
@@ -156,6 +160,82 @@
     </v-list>
     
   </v-navigation-drawer>
+
+  <!-- Notification Panel -->
+  <v-navigation-drawer
+    v-model="showNotificationPanel"
+    location="right"
+    temporary
+    width="350"
+  >
+    <v-toolbar color="primary" dark>
+      <v-toolbar-title>Notifications (2)</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="showNotificationPanel = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-toolbar>
+    
+    <v-list class="pa-2">
+      <!-- Recipe notification -->
+      <v-card variant="outlined" class="mb-3">
+        <v-card-item>
+          <template v-slot:prepend>
+            <v-avatar color="accent" size="40">
+              <v-icon icon="mdi-food-variant" color="white"></v-icon>
+            </v-avatar>
+          </template>
+          <v-card-title class="text-subtitle-1">This week's recipes just generated</v-card-title>
+          <v-card-subtitle class="text-caption text-grey">5 minutes ago</v-card-subtitle>
+        </v-card-item>
+        <v-card-text>
+          Your new meal plan is ready! Check out your delicious recipes for this week.
+        </v-card-text>
+        <v-card-actions>
+          <v-btn variant="text" color="primary" density="comfortable" to="/dashboard">
+            View Recipes
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn icon variant="text" size="small">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+      
+      <!-- Billing notification -->
+      <v-card variant="outlined" class="mb-3">
+        <v-card-item>
+          <template v-slot:prepend>
+            <v-avatar color="warning" size="40">
+              <v-icon icon="mdi-credit-card" color="white"></v-icon>
+            </v-avatar>
+          </template>
+          <v-card-title class="text-subtitle-1">Billing alert: Subscription renews soon</v-card-title>
+          <v-card-subtitle class="text-caption text-grey">1 day ago</v-card-subtitle>
+        </v-card-item>
+        <v-card-text>
+          Your subscription will renew on May 25, 2025. Please ensure your payment details are up to date.
+        </v-card-text>
+        <v-card-actions>
+          <v-btn variant="text" color="primary" density="comfortable" to="/account/billing">
+            View Billing
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn icon variant="text" size="small">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-list>
+    
+    <template v-slot:append>
+      <div class="pa-2">
+        <v-btn block variant="tonal" color="primary" to="/notifications">
+          View All Notifications
+        </v-btn>
+      </div>
+    </template>
+  </v-navigation-drawer>
 </template>
 
 <script lang="ts">
@@ -171,13 +251,15 @@ export default defineComponent({
     const publicTab = ref(null);
     const authStore = useAuthStore();
     const themeStore = useThemeStore();
+    const showNotificationPanel = ref(false);
     
     return {
       drawer,
       activeTab,
       publicTab,
       authStore,
-      themeStore
+      themeStore,
+      showNotificationPanel
     };
   }
 });
