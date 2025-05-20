@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app elevation="1" color="primary" border="b">
+  <v-app-bar app elevation="1" border="b">
     <!-- Logo and brand -->
     <router-link to="/" class="text-decoration-none ml-4">
       <v-toolbar-title class="d-flex align-center text-white">

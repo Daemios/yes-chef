@@ -1,5 +1,5 @@
 <template>
-  <v-footer app color="primary" class="text-white" elevation="1" border="t">
+  <v-footer app class="text-white" elevation="1" border="t">
     <div class="d-flex justify-space-between align-center w-100">
       <span class="font-weight-light">© {{ new Date().getFullYear() }} <span class="text-accent">Yes Chef</span> | Smart Meal Planning</span>
       <div>

@@ -4,168 +4,111 @@
     
     <v-row>
       <v-col cols="12" md="8">
-        <v-card class="mb-6">
-          <v-card-title class="d-flex justify-space-between align-center">
-            <div>
-              <span class="text-h6">This Week's Meal Plan</span>
-              <span class="text-subtitle-2 text-medium-emphasis ml-2">May 15 - May 21</span>
-            </div>
-            <v-btn color="primary" variant="text">
-              <v-icon start>mdi-pencil</v-icon>
-              Edit Plan
-            </v-btn>
-          </v-card-title>
-          
-          <v-divider></v-divider>
-          
-          <v-table hover="false">
-            <thead>
-              <tr>
-                <th class="text-left">Day</th>
-                <th class="text-left">Breakfast</th>
-                <th class="text-left">Lunch</th>
-                <th class="text-left">Dinner</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(day, index) in mealPlan" :key="index">
-                <td class="font-weight-medium">{{ day.day }}</td>
-                <td>{{ day.breakfast }}</td>
-                <td>{{ day.lunch }}</td>
-                <td>{{ day.dinner }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-          
-          <v-card-actions class="pa-4">
-            <v-btn color="primary" variant="outlined" prepend-icon="mdi-cart">
-              View Shopping List
-            </v-btn>
-            <v-btn color="primary" variant="outlined" prepend-icon="mdi-printer" class="ml-2">
-              Print Plan
-            </v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="accent" variant="text">
-              <v-icon start>mdi-plus</v-icon>
-              Add Recipe
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+        <MealPlan :mealPlan="mealPlan" />
         
         <v-row>
           <v-col cols="12" sm="6">
-            <v-card height="100%">
-              <v-card-title class="text-h6">
-                <v-icon start color="error">mdi-food-apple</v-icon>
-                Nutritional Overview
-              </v-card-title>
-              <v-card-text>
-                <v-row class="text-center">
-                  <v-col v-for="(macro, index) in macros" :key="index" cols="4">
-                    <v-progress-circular
-                      :rotate="-90"
-                      :size="80"
-                      :width="8"
-                      :model-value="macro.value"
-                      :color="macro.color"
-                      class="mb-2"
-                    >
-                      {{ macro.value }}%
-                    </v-progress-circular>
-                    <div class="text-body-2 font-weight-medium">{{ macro.name }}</div>
-                  </v-col>
-                </v-row>
-                <div class="text-center mt-4">
-                  <v-btn color="primary" variant="text" size="small" to="/dietary">
-                    View Detailed Breakdown
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
+            <NutritionOverview :macros="macros" />
           </v-col>
           
           <v-col cols="12" sm="6">
-            <v-card height="100%">
-              <v-card-title class="text-h6">
-                <v-icon start color="success">mdi-calendar-check</v-icon>
-                Preparation Calendar
-              </v-card-title>
-              <v-card-text>
-                <div v-for="(task, index) in prepTasks" :key="index" class="d-flex align-center mb-2">
-                  <v-checkbox v-model="task.completed" hide-details density="compact" color="success"></v-checkbox>
-                  <div>
-                    <div :class="{ 'text-decoration-line-through': task.completed }">
-                      {{ task.name }}
-                    </div>
-                    <div class="text-caption text-medium-emphasis">{{ task.day }}</div>
-                  </div>
-                </div>
-                <div class="text-center mt-4">
-                  <v-btn color="primary" variant="text" size="small">
-                    View All Tasks
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
+            <ShoppingInsights />
           </v-col>
         </v-row>
       </v-col>
       
       <v-col cols="12" md="4">
-        <v-card class="mb-6">
-          <v-card-title class="text-h6">
-            <v-icon start color="primary">mdi-star</v-icon>
-            Recommended Recipes
-          </v-card-title>
-          <v-divider></v-divider>
-          <v-list lines="two">
-            <v-list-item v-for="(recipe, index) in recommendedRecipes" :key="index" :value="recipe">
-              <template v-slot:prepend>
-                <v-avatar rounded>
-                  <v-img :src="recipe.image" alt="Recipe"></v-img>
-                </v-avatar>
-              </template>
-              <v-list-item-title class="font-weight-medium">{{ recipe.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ recipe.time }} · {{ recipe.difficulty }}</v-list-item-subtitle>
-              <template v-slot:append>
-                <v-btn icon="mdi-plus" variant="text" size="small"></v-btn>
-              </template>
-            </v-list-item>
-          </v-list>
-          <v-card-actions class="justify-center pa-4">
-            <v-btn color="primary" variant="text">
-              Browse More Recipes
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-        
-        <v-card>
-          <v-card-title class="text-h6">
-            <v-icon start color="warning">mdi-bell</v-icon>
-            Reminders
-          </v-card-title>
-          <v-divider></v-divider>
-          <v-list>
-            <v-list-item v-for="(reminder, index) in reminders" :key="index">
-              <template v-slot:prepend>
-                <v-icon :color="reminder.color">{{ reminder.icon }}</v-icon>
-              </template>
-              <v-list-item-title>{{ reminder.title }}</v-list-item-title>
-              <v-list-item-subtitle>{{ reminder.subtitle }}</v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
-        </v-card>
+        <TaskCalendar 
+          :tasks="prepTasks" 
+          :reminders="reminders" 
+          @add-activity="addNewActivity"
+        />
       </v-col>
     </v-row>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed, onMounted, nextTick } from 'vue';
+import TaskCalendar from '@/components/dashboard/TaskCalendar.vue';
+import MealPlan from '@/components/dashboard/MealPlan.vue';
+import NutritionOverview from '@/components/dashboard/NutritionOverview.vue';
+import ShoppingInsights from '@/components/dashboard/ShoppingInsights.vue';
 
 export default defineComponent({
   name: 'DashboardView',
-  setup() {
+  components: {
+    TaskCalendar,
+    MealPlan,
+    NutritionOverview,
+    ShoppingInsights
+  },
+  setup() {    // Add function to handle the add activity event
+    const addNewActivity = () => {
+      // This would typically open a dialog or navigate to activity creation
+      console.log('Add new activity triggered');
+      // In a real app, you might do something like:
+      // dialogOpen.value = true;
+    };    // Helper function to check if a day is today (for highlighting)
+    const isToday = (dayName: string) => {
+      const today = new Date();
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return days[today.getDay()] === dayName;
+    };
+    
+    // Helper function to get the formatted date for a day name
+    const getFormattedDate = (dayName: string) => {
+      const today = new Date();
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const todayIndex = days.indexOf(days[today.getDay()]);
+      const dayIndex = days.indexOf(dayName);
+      
+      // Calculate the difference in days
+      let daysToAdd = dayIndex - todayIndex;
+      if (daysToAdd < 0) daysToAdd += 7; // Wrap to next week
+      
+      // Create a new date by adding the difference
+      const date = new Date(today);
+      date.setDate(today.getDate() + daysToAdd);
+      
+      // Format as "May 20"
+      return `${date.toLocaleString('default', { month: 'short' })} ${date.getDate()}`;
+    };
+      // Sort meal plan to have today's meal first
+    const sortedMealPlan = computed(() => {
+      const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const today = new Date();
+      const todayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][today.getDay()];
+      const todayIndex = dayOrder.indexOf(todayName);
+      
+      // Create a new array that starts with today and wraps around
+      const reorderedDays = [
+        ...dayOrder.slice(todayIndex),
+        ...dayOrder.slice(0, todayIndex)
+      ];
+      
+      // Sort the meal plan based on the reordered days
+      const sorted = [...mealPlan].sort((a, b) => {
+        return reorderedDays.indexOf(a.day) - reorderedDays.indexOf(b.day);
+      });
+      
+      // Only return today and the next two days (total of 3 days)
+      return sorted.slice(0, 3);
+    });
+    
+    // References for DOM elements
+    const mealList = ref(null);
+    const todaySection = ref(null);
+    
+    // Scroll to today's meal when component is mounted
+    onMounted(() => {
+      nextTick(() => {
+        if (todaySection.value && todaySection.value[0]) {
+          todaySection.value[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
     const mealPlan = [
       {
         day: 'Monday',
@@ -206,31 +149,10 @@ export default defineComponent({
     ];
     
     const prepTasks = [
-      { name: 'Marinate chicken for Tuesday', day: 'Monday', completed: true },
-      { name: 'Prep vegetables for stir fry', day: 'Tuesday', completed: false },
-      { name: 'Make turkey meatballs', day: 'Wednesday', completed: false },
-      { name: 'Prepare pizza dough', day: 'Thursday', completed: false }
-    ];
-    
-    const recommendedRecipes = [
-      { 
-        name: 'Sweet Potato Buddha Bowl', 
-        time: '30 min', 
-        difficulty: 'Easy',
-        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80'
-      },
-      { 
-        name: 'One-Pot Chicken Pasta', 
-        time: '25 min', 
-        difficulty: 'Easy',
-        image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80'
-      },
-      { 
-        name: 'Mediterranean Grilled Vegetables', 
-        time: '20 min', 
-        difficulty: 'Easy',
-        image: 'https://images.unsplash.com/photo-1511994714008-b6d68a8b32a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80'
-      }
+      { name: 'Marinate chicken for Tuesday', day: 'Monday', completed: true, date: '2025-05-19' },
+      { name: 'Prep vegetables for stir fry', day: 'Tuesday', completed: false, date: '2025-05-20' },
+      { name: 'Make turkey meatballs', day: 'Wednesday', completed: false, date: '2025-05-21' },
+      { name: 'Prepare pizza dough', day: 'Thursday', completed: false, date: '2025-05-22' }
     ];
     
     const reminders = [
@@ -238,29 +160,77 @@ export default defineComponent({
         icon: 'mdi-cart',
         color: 'primary',
         title: 'Shopping Day',
-        subtitle: 'Tomorrow is your scheduled grocery shopping day'
+        subtitle: 'Tomorrow is your scheduled grocery shopping day',
+        date: '2025-05-21'
       },
       {
         icon: 'mdi-food',
         color: 'error',
         title: 'Check Fridge',
-        subtitle: 'Some items may expire soon'
+        subtitle: 'Some items may expire soon',
+        date: '2025-05-20'
       },
       {
         icon: 'mdi-silverware-fork-knife',
         color: 'success',
         title: 'Meal Prep Sunday',
-        subtitle: 'Prepare meals for next week'
+        subtitle: 'Prepare meals for next week',
+        date: '2025-05-25'
       }
-    ];
-    
-    return {
+    ];    return {
       mealPlan,
+      sortedMealPlan,
       macros,
       prepTasks,
-      recommendedRecipes,
-      reminders
+      reminders,
+      addNewActivity,
+      isToday,
+      getFormattedDate,
+      mealList,
+      todaySection
     };
   }
 });
 </script>
+
+<style>
+/* Dashboard-specific styles */
+.meal-plan-list {
+  max-height: 350px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.current-day-header {
+  background-color: rgba(var(--v-theme-primary), 0.1);
+  font-weight: bold;
+}
+
+.meal-item {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.meal-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(var(--v-theme-surface-variant), 0.2);
+  margin-right: 4px;
+}
+
+.meal-title {
+  font-weight: 500 !important;
+  padding-top: 2px;
+}
+
+.meal-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+</style>
