@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div>
     <v-row>
       <v-col cols="12" class="text-center">
         <h1 class="text-h3 font-weight-bold mb-3">About Yes Chef</h1>
@@ -35,7 +35,7 @@
 
     <v-row>
       <v-col v-for="(value, index) in values" :key="index" cols="12" md="4" class="mb-6">
-        <v-card height="100%" variant="outlined" class="rounded-lg">
+        <v-card height="100%" variant="outlined" class="rounded-lg transition-transform">
           <v-card-item>
             <v-avatar :color="value.color" class="mb-4">
               <v-icon :icon="value.icon" color="white"></v-icon>
@@ -82,13 +82,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.team-card {
-  transition: transform 0.3s;
-}
-
-.team-card:hover {
-  transform: translateY(-5px);
-}
-</style>

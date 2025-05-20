@@ -1,5 +1,5 @@
 <template>
-  <div class="features">
+  <div>
     <v-row>
       <v-col cols="12" class="text-center">
         <h1 class="text-h3 font-weight-bold mb-3">Features</h1>

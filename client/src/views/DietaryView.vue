@@ -1,5 +1,5 @@
 <template>
-  <div class="dietary">
+  <div>
     <div class="d-flex justify-space-between align-center mb-6">
       <h1 class="text-h4 font-weight-bold">Dietary Breakdown</h1>
       <div>
@@ -18,7 +18,7 @@
           <v-card-text>
             <div style="height: 300px">
               <!-- Chart placeholder - would use a real chart library in production -->
-              <div class="chart-placeholder d-flex align-center justify-center">
+              <div class="bg-grey-lighten-3 rounded-lg h-100 d-flex align-center justify-center">
                 <div class="text-center">
                   <div class="text-h6">Macronutrients Chart</div>
                   <div class="text-body-2 text-medium-emphasis">
@@ -131,7 +131,7 @@
           <v-card-text>
             <div style="height: 200px" class="mb-4">
               <!-- Chart placeholder - would use a real chart library in production -->
-              <div class="chart-placeholder d-flex align-center justify-center">
+              <div class="bg-grey-lighten-3 rounded-lg h-100 d-flex align-center justify-center">
                 <div class="text-center">
                   <div class="text-body-2">Weekly Trends Chart</div>
                   <div class="text-caption text-medium-emphasis">
@@ -343,11 +343,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.chart-placeholder {
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-}
-</style>

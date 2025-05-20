@@ -1,7 +1,7 @@
 <template>
-  <div class="not-found">
+  <div>
     <v-container class="d-flex align-center justify-center" style="min-height: 70vh;">
-      <v-card class="text-center pa-6" max-width="600" elevation="3" rounded="lg">
+      <v-card class="text-center pa-6 position-relative" max-width="600" elevation="3" rounded="lg">
         <v-icon icon="mdi-alert-circle" color="error" size="64" class="mb-4"></v-icon>
         <v-card-title class="text-h3 font-weight-bold mb-2">
           404
@@ -22,7 +22,7 @@
             Back to Meal Plans
           </v-btn>
         </v-card-text>
-        <div class="chef-icon">
+        <div class="position-absolute" style="bottom: -30px; right: -30px; opacity: 0.2; transform: rotate(15deg); z-index: 0;">
           <v-icon icon="mdi-chef-hat" size="120" color="grey-lighten-3"></v-icon>
         </div>
       </v-card>
@@ -37,14 +37,3 @@ export default defineComponent({
   name: 'NotFoundView'
 });
 </script>
-
-<style scoped>
-.chef-icon {
-  position: absolute;
-  bottom: -30px;
-  right: -30px;
-  opacity: 0.2;
-  transform: rotate(15deg);
-  z-index: 0;
-}
-</style>

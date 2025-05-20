@@ -1,5 +1,5 @@
 <template>
-  <div class="account">
+  <div class="min-h-100">
     <h1 class="text-h4 font-weight-bold mb-6">My Account</h1>
     
     <v-row>
@@ -206,9 +206,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.account {
-  min-height: 100%;
-}
-</style>

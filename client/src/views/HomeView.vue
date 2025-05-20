@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="min-h-100">
     <v-row class="mt-12">
       <v-col cols="12" md="6" class="d-flex flex-column justify-center">
         <h1 class="text-h2 font-weight-bold mb-4">Smart Meal Planning<br>Made <span class="text-accent">Simple</span></h1>
@@ -23,54 +23,60 @@
       </v-col>
     </v-row>
 
-    <v-row class="mt-16">
-      <v-col cols="12" class="text-center">
-        <h2 class="text-h4 font-weight-bold mb-2">How It Works</h2>
-        <p class="text-subtitle-1 mx-auto" style="max-width: 600px">Three simple steps to transform your meal planning routine</p>
-      </v-col>
-    </v-row>
+    <div class="py-16 my-8 bg-dark" style="background-color: rgba(30, 41, 59, 0.5); border-top: 1px solid rgba(148, 163, 184, 0.1); border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
+      <v-container>
+        <v-row>
+          <v-col cols="12" class="text-center mb-12">
+            <span class="text-overline text-accent font-weight-bold">SIMPLE PROCESS</span>
+            <h2 class="text-h3 font-weight-bold mt-2 mb-3">How It Works</h2>
+            <p class="text-subtitle-1 mx-auto" style="max-width: 600px">Three simple steps to transform your meal planning routine</p>
+          </v-col>
+        </v-row>
 
-    <v-row class="mt-6">
-      <v-col cols="12" md="4">
-        <v-card height="100%" variant="outlined" class="rounded-lg">
-          <v-card-item>
-            <v-avatar color="accent" size="56" class="mb-4">
-              <span class="text-h5 font-weight-bold">1</span>
-            </v-avatar>
-            <v-card-title class="text-h5 font-weight-bold">Plan Your Meals</v-card-title>
-            <v-card-text class="text-body-1">
-              Easily select recipes from our database or add your own favorites to create customized weekly meal plans.
-            </v-card-text>
-          </v-card-item>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="4">
-        <v-card height="100%" variant="outlined" class="rounded-lg">
-          <v-card-item>
-            <v-avatar color="accent" size="56" class="mb-4">
-              <span class="text-h5 font-weight-bold">2</span>
-            </v-avatar>
-            <v-card-title class="text-h5 font-weight-bold">Generate Shopping Lists</v-card-title>
-            <v-card-text class="text-body-1">
-              We automatically combine ingredients from all your planned meals into a smart shopping list organized by store section.
-            </v-card-text>
-          </v-card-item>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="4">
-        <v-card height="100%" variant="outlined" class="rounded-lg">
-          <v-card-item>
-            <v-avatar color="accent" size="56" class="mb-4">
-              <span class="text-h5 font-weight-bold">3</span>
-            </v-avatar>
-            <v-card-title class="text-h5 font-weight-bold">Track Nutrition</v-card-title>
-            <v-card-text class="text-body-1">
-              Monitor your nutritional intake with detailed breakdowns and insights to help you maintain a balanced diet.
-            </v-card-text>
-          </v-card-item>
-        </v-card>
-      </v-col>
-    </v-row>
+        <v-row class="mt-6">
+          <v-col cols="12" md="4" v-for="(step, index) in steps" :key="index">
+            <v-hover v-slot="{ isHovering, props }">
+              <v-card
+                v-bind="props"
+                :elevation="isHovering ? 4 : 1"
+                :class="['h-100', isHovering ? 'border border-accent' : '']"
+                rounded="lg"
+              >
+                <v-card-item>
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar 
+                      color="accent" 
+                      size="50"
+                      class="mr-4"
+                    >
+                      <span class="text-h6 font-weight-bold">{{ index + 1 }}</span>
+                    </v-avatar>
+                    <v-card-title class="text-h5 pa-0 font-weight-bold">{{ step.title }}</v-card-title>
+                  </div>
+                  
+                  <v-card-text class="text-body-1 pt-2">
+                    {{ step.description }}
+                  </v-card-text>
+                  
+                  <div class="text-center mt-4">
+                    <v-icon :icon="step.icon" size="64" color="accent" class="opacity-75"></v-icon>
+                  </div>
+                </v-card-item>
+              </v-card>
+            </v-hover>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-12">
+          <v-col cols="12" class="text-center">
+            <v-btn to="/subscribe" color="accent" size="large" class="px-6">
+              Get Started Today
+              <v-icon end>mdi-arrow-right</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </div>
 </template>
 
@@ -78,12 +84,27 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'HomeView'
+  name: 'HomeView',
+  data() {
+    return {
+      steps: [
+        {
+          title: 'Plan Your Meals',
+          description: 'Easily select recipes from our curated database or add your own favorites to create personalized weekly meal plans in minutes.',
+          icon: 'mdi-calendar-text'
+        },
+        {
+          title: 'Generate Shopping Lists',
+          description: 'Our smart system automatically combines ingredients from all your planned meals into organized shopping lists, saving you time and reducing waste.',
+          icon: 'mdi-cart-outline'
+        },
+        {
+          title: 'Track Nutrition',
+          description: 'Monitor your nutritional intake with detailed breakdowns and visualizations to help you maintain a balanced, healthy diet effortlessly.',
+          icon: 'mdi-chart-bar'
+        }
+      ]
+    };
+  }
 });
 </script>
-
-<style scoped>
-.home {
-  min-height: 100%;
-}
-</style>

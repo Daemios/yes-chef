@@ -1,14 +1,28 @@
 <template>
-  <div class="test">
-    <h1>API Testing Page</h1>
-    <div class="api-test">
-      <button @click="testApiConnection">Test API Connection</button>
-      <div v-if="apiMessage" class="api-response">
-        <p>API Response: {{ apiMessage }}</p>
-      </div>
-      <div v-if="apiError" class="api-error">
-        <p>Failed to connect to API: {{ apiError }}</p>
-      </div>
+  <div class="mx-auto pa-5" style="max-width: 800px;">
+    <h1 class="text-h4 font-weight-bold mb-6">API Testing Page</h1>
+    <div class="mt-5">
+      <v-btn @click="testApiConnection" color="primary">Test API Connection</v-btn>
+      
+      <v-alert
+        v-if="apiMessage"
+        type="success"
+        variant="tonal"
+        class="mt-3"
+        border="start"
+      >
+        API Response: {{ apiMessage }}
+      </v-alert>
+      
+      <v-alert
+        v-if="apiError"
+        type="error"
+        variant="tonal"
+        class="mt-3"
+        border="start"
+      >
+        Failed to connect to API: {{ apiError }}
+      </v-alert>
     </div>
   </div>
 </template>
@@ -42,29 +56,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.test {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.api-test {
-  margin-top: 20px;
-}
-
-.api-response {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #e7f7e7;
-  border-radius: 4px;
-}
-
-.api-error {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #f7e7e7;
-  border-radius: 4px;
-}
-</style>

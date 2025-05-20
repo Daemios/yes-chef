@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard">
+  <div>
     <h1 class="text-h4 font-weight-bold mb-6">Dashboard</h1>
     
     <v-row>
@@ -18,7 +18,7 @@
           
           <v-divider></v-divider>
           
-          <v-table class="meal-plan-table">
+          <v-table hover="false">
             <thead>
               <tr>
                 <th class="text-left">Day</th>
@@ -264,9 +264,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.meal-plan-table tr:hover {
-  background-color: transparent !important;
-}
-</style>

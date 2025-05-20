@@ -1,5 +1,5 @@
 <template>
-  <div class="subscribe">
+  <div>
     <v-row class="justify-center">
       <v-col cols="12" md="10" lg="8">
         <v-card class="rounded-lg">

@@ -1,34 +1,44 @@
 <template>
-  <div class="api-page">
-    <h1>API Documentation & Testing</h1>
+  <div class="mx-auto" style="max-width: 800px;">
+    <h1 class="text-h4 font-weight-bold mb-6">API Documentation & Testing</h1>
     
-    <section class="api-docs">
-      <h2>API Documentation</h2>
-      <p>Welcome to the Yes Chef API documentation. This page provides information about our public API endpoints.</p>
+    <section class="mb-10">
+      <h2 class="text-h5 font-weight-bold mb-4">API Documentation</h2>
+      <p class="mb-4">Welcome to the Yes Chef API documentation. This page provides information about our public API endpoints.</p>
       
       <!-- API documentation content goes here -->
-      <div class="endpoint">
-        <h3>GET /api/hello</h3>
-        <p>Returns a hello message from the server.</p>
-        <pre>{ "message": "Hello from Yes Chef API!" }</pre>
+      <div class="bg-grey-lighten-4 rounded pa-4 mb-4">
+        <h3 class="text-h6 font-weight-bold">GET /api/hello</h3>
+        <p class="mb-2">Returns a hello message from the server.</p>
+        <v-sheet class="bg-grey-lighten-3 pa-3 rounded overflow-x-auto">
+          <pre class="ma-0">{ "message": "Hello from Yes Chef API!" }</pre>
+        </v-sheet>
       </div>
       
       <!-- Add more API endpoints documentation as needed -->
     </section>
     
-    <section class="api-testing">
-      <h2>API Connection Test</h2>
-      <p>Use the button below to test the API connection:</p>
+    <section class="mb-10">
+      <h2 class="text-h5 font-weight-bold mb-4">API Connection Test</h2>
+      <p class="mb-4">Use the button below to test the API connection:</p>
       
-      <button @click="testApiConnection">Test API Connection</button>
+      <v-btn color="success" @click="testApiConnection" class="mb-4">Test API Connection</v-btn>
       
-      <div v-if="apiMessage" class="api-response">
-        <p>API Response: {{ apiMessage }}</p>
-      </div>
+      <v-alert
+        v-if="apiMessage"
+        type="success"
+        class="mt-4"
+      >
+        API Response: {{ apiMessage }}
+      </v-alert>
       
-      <div v-if="apiError" class="api-error">
-        <p>Failed to connect to API: {{ apiError }}</p>
-      </div>
+      <v-alert
+        v-if="apiError"
+        type="error"
+        class="mt-4"
+      >
+        Failed to connect to API: {{ apiError }}
+      </v-alert>
     </section>
   </div>
 </template>
@@ -62,56 +72,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.api-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-section {
-  margin-bottom: 40px;
-}
-
-.endpoint {
-  background-color: #f8f8f8;
-  border-radius: 4px;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-pre {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
-.api-response {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #e7f7e7;
-  border-radius: 4px;
-}
-
-.api-error {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #f7e7e7;
-  border-radius: 4px;
-}
-
-button {
-  padding: 8px 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-</style>

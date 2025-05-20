@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div>
     <v-row class="justify-center">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card class="mx-auto pa-6 rounded-lg">

@@ -1,5 +1,5 @@
 <template>
-  <v-footer app color="primary" class="text-white" elevation="0">
+  <v-footer app color="primary" class="text-white" elevation="1" border="t">
     <div class="d-flex justify-space-between align-center w-100">
       <span class="font-weight-light">© {{ new Date().getFullYear() }} <span class="text-accent">Yes Chef</span> | Smart Meal Planning</span>
       <div>
@@ -18,10 +18,3 @@ export default defineComponent({
   name: 'AppFooter'
 });
 </script>
-
-<style scoped>
-.v-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: var(--v-primary-base) !important;
-}
-</style>

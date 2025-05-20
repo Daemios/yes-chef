@@ -1,5 +1,5 @@
 <template>
-  <div class="support">
+  <div>
     <h1 class="text-h4 font-weight-bold mb-6">Help & Support</h1>
     
     <v-row>

@@ -1,5 +1,5 @@
 <template>
-  <div class="meal-plan-detail">
+  <div>
     <v-container>
       <v-row justify="center">
         <v-col cols="12" md="10" lg="8">          <v-card 
@@ -13,7 +13,7 @@
               :src="recipeStore.currentRecipe.imageUrl"
               height="300"
               cover
-              class="meal-image"
+              gradient="to top, rgba(0,0,0,0.6) 0%, transparent 100%"
             >
               <template v-slot:placeholder>
                 <div class="d-flex align-center justify-center fill-height">
@@ -21,8 +21,10 @@
                 </div>
               </template>
             </v-img>
-              <div v-else class="meal-image-placeholder">
-              <v-icon icon="mdi-food-variant" size="64" color="accent"></v-icon>
+              <div v-else class="position-relative overflow-hidden d-flex align-center justify-center" style="height: 200px; background-color: var(--v-theme-primary);">
+              <div class="position-absolute" style="background-image: linear-gradient(135deg, var(--v-theme-primary), var(--v-theme-secondary)); opacity: 0.8; top: 0; left: 0; right: 0; bottom: 0;"></div>
+              <div class="position-absolute" style="top: 10px; bottom: 10px; left: 10px; right: 10px; border: 1px solid var(--v-theme-accent); opacity: 0.5;"></div>
+              <v-icon icon="mdi-food-variant" size="64" color="accent" class="z-1"></v-icon>
             </div>
             
             <v-card-title class="text-h3 pt-6 pb-2 px-6 font-weight-light">
@@ -91,7 +93,7 @@
                 Instructions
               </h3>
               <v-card class="mb-6 pa-4" variant="flat" rounded="lg" elevation="1">
-                <p class="white-space-pre-wrap">{{ recipeStore.currentRecipe.instructions }}</p>
+                <p class="text-pre-wrap">{{ recipeStore.currentRecipe.instructions }}</p>
               </v-card>
 
               <h3 class="text-h5 mb-4 font-weight-medium text-primary">
@@ -240,57 +242,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.white-space-pre-wrap {
-  white-space: pre-wrap;
-}
-
-.meal-image {
-  position: relative;
-}
-
-.meal-image::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
-  pointer-events: none;
-}
-
-.meal-image-placeholder {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--v-theme-primary);
-  position: relative;
-  overflow: hidden;
-}
-
-.meal-image-placeholder::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(135deg, var(--v-theme-primary), var(--v-theme-secondary));
-  opacity: 0.8;
-}
-
-.meal-image-placeholder::after {
-  content: '';
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  border: 1px solid var(--v-theme-accent);
-  opacity: 0.5;
-  pointer-events: none;
-}
-</style>

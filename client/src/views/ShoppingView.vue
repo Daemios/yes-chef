@@ -1,5 +1,5 @@
 <template>
-  <div class="shopping">
+  <div>
     <!-- Mobile-optimized header -->
     <div class="d-flex flex-column flex-sm-row justify-space-between align-center mb-4">
       <h1 class="text-h4 font-weight-bold mb-3 mb-sm-0">Shopping List</h1>
@@ -95,7 +95,7 @@
         v-for="(section, index) in filteredSections"
         :key="index"
         :value="index"
-        :class="{'opacity-low': section.allPurchased && !showAllItems}"
+        :class="{'opacity-70': section.allPurchased && !showAllItems}"
       >
         <v-expansion-panel-title>
           <div class="d-flex align-center w-100">
@@ -132,7 +132,7 @@
               :key="itemIndex"
               :class="{'bg-grey-lighten-4': item.purchased}"
               rounded
-              class="mb-1 shopping-item"
+              class="mb-1 transition"
               @click="toggleItemPurchased(section, item)"
             >
               <template v-slot:prepend>
@@ -187,7 +187,7 @@
     
     <!-- Floating action button for quick actions on mobile -->
     <v-btn
-      class="floating-btn d-md-none"
+      class="position-fixed bottom-6 right-6 z-5 d-md-none"
       color="primary"
       icon="mdi-check-all"
       size="large"
@@ -493,28 +493,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.shopping-item {
-  transition: background-color 0.15s ease;
-}
-
-.shopping-item:active {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.opacity-low {
-  opacity: 0.7;
-}
-
-.floating-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 5;
-}
-
+<style>
 @media print {
-  .v-btn, .v-text-field, .floating-btn {
+  .v-btn, .v-text-field, .position-fixed {
     display: none !important;
   }
   

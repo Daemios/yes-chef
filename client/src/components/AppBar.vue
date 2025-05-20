@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app elevation="0" color="primary">
+  <v-app-bar app elevation="1" color="primary" border="b">
     <!-- Logo and brand -->
     <router-link to="/" class="text-decoration-none ml-4">
       <v-toolbar-title class="d-flex align-center text-white">
@@ -17,7 +17,7 @@
     <div class="d-none d-md-flex align-center">
       <!-- For authenticated users -->
       <template v-if="authStore.isAuthenticated">
-        <v-tabs v-model="activeTab" color="accent" align-tabs="center">
+        <v-tabs v-model="activeTab" color="accent" align-tabs="center" height="64">
           <v-tab value="dashboard" to="/dashboard">
             <v-icon class="mr-1">mdi-view-dashboard</v-icon> Dashboard
           </v-tab>
@@ -60,7 +60,7 @@
       
       <!-- For non-authenticated users -->
       <template v-else>
-        <v-tabs v-model="publicTab" color="accent" align-tabs="center">
+        <v-tabs v-model="publicTab" color="accent" align-tabs="center" height="64">
           <v-tab value="features" to="/features">
             <v-icon class="mr-1">mdi-star</v-icon> Features
           </v-tab>
@@ -78,7 +78,7 @@
           <v-icon start>mdi-login</v-icon> Login
         </v-btn>
         
-        <v-btn to="/subscribe" color="accent" class="font-weight-bold" elevation="1">
+        <v-btn to="/subscribe" color="white" class="font-weight-bold" elevation="1">
           <v-icon start>mdi-diamond</v-icon> Try for Free
         </v-btn>
       </template>
@@ -182,14 +182,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.v-app-bar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: var(--v-primary-base) !important;
-}
-
-.v-tabs {
-  height: 64px;
-}
-</style>

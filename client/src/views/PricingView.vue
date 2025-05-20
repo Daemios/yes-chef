@@ -1,5 +1,6 @@
 <template>
-  <div class="pricing">
+  <div>
+    <!-- Header section -->
     <v-row>
       <v-col cols="12" class="text-center">
         <h1 class="text-h3 font-weight-bold mb-3">Simple, Transparent Pricing</h1>
@@ -9,52 +10,64 @@
       </v-col>
     </v-row>
 
+    <!-- Pricing cards -->
     <v-row class="mt-6 justify-center">
-      <v-col cols="12" md="10">
-        <v-card class="mx-auto rounded-xl">
-          <v-row>
-            <v-col cols="12" md="4" v-for="(plan, index) in plans" :key="index" class="pa-0">
+      <v-col cols="12" md="10" class="pa-0">
+        <v-card class="mx-auto rounded-xl pa-0 overflow-visible" flat>
+          <v-row no-gutters class="overflow-visible">
+            <v-col cols="12" md="4" v-for="(plan, index) in plans" :key="index" class="d-flex position-relative overflow-visible">
               <v-card
-                class="h-100 plan-card rounded-0"
-                :class="{ 'popular-plan': plan.popular }"
-                :flat="!plan.popular"
-                :elevation="plan.popular ? 10 : 0"
+                width="100%"
+                flat
+                :class=" [
+                  'd-flex flex-column rounded-0 overflow-visible',
+                  plan.popular ? 'border-accent border-2 elevation-10 bg-surface' : 'border border-opacity-12 bg-surface pt-10'
+                ]"
+                :style="plan.popular && $vuetify.display.mdAndUp ? 'margin: -12px 0; height: calc(100% + 24px); z-index: 1;' : ''"
               >
-                <div v-if="plan.popular" class="text-center popular-badge pa-2 text-white bg-accent text-uppercase font-weight-medium">Most Popular</div>
-                <v-card-item class="text-center pt-6">
-                  <v-card-title class="text-h5 font-weight-bold mb-2">{{ plan.name }}</v-card-title>
-                  <div class="price-container">
-                    <div class="text-h3 font-weight-bold d-flex justify-center">
-                      <span class="text-subtitle-1 mt-2 mr-1">$</span>
-                      {{ plan.price }}
-                    </div>
-                    <div class="text-subtitle-2 text-medium-emphasis">per month</div>
+                <!-- Popular badge -->
+                <div v-if="plan.popular" class="text-center bg-accent text-white text-uppercase font-weight-medium pa-2">
+                  Most Popular
+                </div>
+                
+                <!-- Plan header -->
+                <div class="text-center pt-6 px-6">
+                  <h2 class="text-h5 font-weight-bold mb-6">{{ plan.name }}</h2>
+                  
+                  <!-- Price display -->
+                  <div class="d-flex justify-center align-center mb-1">
+                    <span class="text-subtitle-1 mr-1">$</span>
+                    <span class="text-h2 font-weight-bold">{{ plan.price }}</span>
                   </div>
-                  <v-card-text>
-                    <p class="text-body-2 mb-4">{{ plan.description }}</p>
-                  </v-card-text>
-                </v-card-item>
+                  <div class="text-subtitle-2 text-medium-emphasis mb-4">per month</div>
+                  
+                  <p class="text-body-2 mb-6">{{ plan.description }}</p>
+                </div>
                 
                 <v-divider></v-divider>
                 
-                <v-card-text>
-                  <div v-for="(feature, i) in plan.features" :key="i" class="d-flex align-center mb-3">
-                    <v-icon :color="plan.popular ? 'accent' : 'primary'" class="mr-2">mdi-check-circle</v-icon>
-                    <span>{{ feature }}</span>
+                <!-- Features list -->
+                <div class="pa-6 flex-grow-1">
+                  <div v-for="(feature, i) in plan.features" :key="i" class="d-flex align-start mb-3">
+                    <v-icon :color="plan.popular ? 'accent' : 'primary'" size="small" class="mr-3 mt-n1">
+                      mdi-check-circle
+                    </v-icon>
+                    <span class="text-body-1">{{ feature }}</span>
                   </div>
-                </v-card-text>
+                </div>
                 
-                <v-card-actions class="pa-6 pt-0">
+                <!-- Action button -->
+                <div class="px-6 pb-6 pt-2">
                   <v-btn 
                     block 
+                    size="large"
                     :color="plan.popular ? 'accent' : 'primary'" 
                     :variant="plan.popular ? 'flat' : 'outlined'"
-                    class="text-none" 
                     to="/subscribe"
                   >
                     Get Started
                   </v-btn>
-                </v-card-actions>
+                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -62,6 +75,7 @@
       </v-col>
     </v-row>
     
+    <!-- FAQ section -->
     <v-row class="mt-12">
       <v-col cols="12" class="text-center">
         <h2 class="text-h5 font-weight-bold mb-3">Frequently Asked Questions</h2>
@@ -90,7 +104,7 @@ export default defineComponent({
     const plans = [
       {
         name: 'Basic',
-        price: 4.99,
+        price: 2.99,
         description: 'Essential meal planning for individuals',
         popular: false,
         features: [
@@ -103,7 +117,7 @@ export default defineComponent({
       },
       {
         name: 'Premium',
-        price: 9.99,
+        price: 5.99,
         description: 'Complete meal planning solution for the whole family',
         popular: true,
         features: [
@@ -118,7 +132,7 @@ export default defineComponent({
       },
       {
         name: 'Family',
-        price: 14.99,
+        price: 12.99,
         description: 'Advanced planning for multiple household members',
         popular: false,
         features: [
@@ -163,28 +177,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.plan-card {
-  position: relative;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.popular-plan {
-  margin-top: -20px;
-  margin-bottom: -20px;
-  z-index: 1;
-  border: 2px solid var(--v-accent-base);
-}
-
-.popular-badge {
-  border-radius: 4px 4px 0 0;
-}
-
-@media (max-width: 960px) {
-  .popular-plan {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-}
-</style>
