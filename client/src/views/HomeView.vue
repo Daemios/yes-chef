@@ -1,224 +1,84 @@
-<template>  <div class="home">
-    <div class="bg-primary py-16 text-center mb-8">
-      <v-container>
-        <v-row justify="center">
-          <v-col cols="12" md="8" lg="6">
-            <h1 class="text-h2 font-weight-bold text-white mb-4">Welcome to Yes Chef</h1>
-            <p class="text-h6 text-white mb-6">Your personal recipe collection</p>
-            <v-btn
-              color="accent"
-              size="large"
-              class="text-white"
-              elevation="3"
-              @click="createNewRecipe"
-            >
-              <v-icon icon="mdi-plus" class="mr-2"></v-icon>
-              Add New Recipe
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-
-    <!-- API Test Section -->
-    <v-card class="mx-auto my-6 pa-4" max-width="600" elevation="3" rounded="lg">
-      <v-card-title class="text-h5 font-weight-bold">
-        <v-icon icon="mdi-api" color="primary" class="mr-2"></v-icon>
-        API Connection
-      </v-card-title>
-      <v-card-text>
-        <p>This is a Vue.js application with Node/Express backend using TypeScript.</p>
-        <v-btn
-          color="primary"
-          class="mt-4"
-          variant="elevated"
-          @click="fetchMessage"
-          :loading="apiLoading"
-          :disabled="apiLoading"
-        >
-          <v-icon icon="mdi-connection" class="mr-2"></v-icon>
-          Test API Connection
-        </v-btn>
-        <v-alert
-          v-if="apiMessage"
-          density="comfortable"
-          type="success"
-          variant="tonal"
-          class="mt-4"
-        >
-          {{ apiMessage }}
-        </v-alert>
-        <v-alert
-          v-if="apiError"
-          density="comfortable"
-          type="error"
-          variant="tonal"
-          class="mt-4"
-        >
-          {{ apiError }}
-        </v-alert>
-      </v-card-text>
-    </v-card>
-
-    <!-- Recipe List Section -->
-    <v-card class="mx-auto my-6 pa-4" max-width="800" elevation="3" rounded="lg">
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="mdi-book-open-variant" color="primary" size="large" class="mr-3"></v-icon>
-        <span class="text-h4 font-weight-bold">Recipes</span>
-        <v-spacer></v-spacer>
-        <v-btn 
-          color="accent" 
-          variant="elevated" 
-          class="text-white"
-          prepend-icon="mdi-plus" 
-          @click="createNewRecipe"
-        >
-          Add Recipe        </v-btn>
-      </v-card-title>
-      
-      <v-divider class="mx-auto my-4 border-opacity-50" style="width: 30%; border-width: 2px;" color="primary"></v-divider>
-      
-      <v-card-text>
-        <v-btn
-          color="info"
-          variant="outlined"
-          class="mb-6"
-          @click="loadRecipes"
-          :loading="recipeStore.loading"
-          :disabled="recipeStore.loading"
-        >
-          <v-icon icon="mdi-refresh" class="mr-2"></v-icon>
-          Refresh Recipes
-        </v-btn>
-
-        <v-alert
-          v-if="recipeStore.error"
-          type="error"
-          variant="tonal"
-          class="mb-4"
-        >
-          {{ recipeStore.error }}
-        </v-alert>
-
-        <v-list v-if="recipeStore.recipes.length > 0" class="bg-light-cream">
-          <v-list-item
-            v-for="recipe in recipeStore.getSortedRecipes"
-            :key="recipe.id"
-            :title="recipe.title"
-            :subtitle="recipe.description || 'No description'"
-            class="recipe-card mb-2"
-            rounded="lg"
-            elevation="1"
-            variant="elevated"
-            active-color="primary"
-          >
-            <template v-slot:prepend>
-              <v-avatar color="primary" class="text-white">
-                {{ recipe.title.charAt(0).toUpperCase() }}
-              </v-avatar>
-            </template>
-            
-            <template v-slot:append>
-              <v-btn 
-                icon="mdi-eye" 
-                variant="text" 
-                color="primary" 
-                @click="viewRecipe(recipe.id)"
-              ></v-btn>
-            </template>
-          </v-list-item>
-        </v-list>
-        
-        <v-card 
-          v-else-if="!recipeStore.loading" 
-          class="pa-6 text-center bg-light-cream"
-          variant="outlined"
-          rounded="lg"
-        >
-          <v-icon icon="mdi-food-off" size="64" color="text-light" class="mb-4"></v-icon>
-          <p class="text-h6 mb-4">No recipes found.</p>
-          <p class="mb-4">Time to add your first culinary creation!</p>
-          <v-btn 
-            color="accent" 
-            variant="elevated" 
-            class="text-white"
-            prepend-icon="mdi-plus" 
-            @click="createNewRecipe"
-          >
-            Create First Recipe
+<template>
+  <div class="home">
+    <v-row class="mt-12">
+      <v-col cols="12" md="6" class="d-flex flex-column justify-center">
+        <h1 class="text-h2 font-weight-bold mb-4">Smart Meal Planning<br>Made <span class="text-accent">Simple</span></h1>
+        <p class="text-body-1 mb-6">Yes Chef helps you plan your meals, generate shopping lists, and track nutrition - all in one place.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <v-btn to="/subscribe" color="accent" size="large" class="text-none mb-2 mr-2">
+            <v-icon start>mdi-silverware-fork-knife</v-icon>
+            Start Meal Planning
           </v-btn>
+          <v-btn to="/features" variant="outlined" size="large" class="text-none mb-2">
+            <v-icon start>mdi-information-outline</v-icon>
+            Learn More
+          </v-btn>
+        </div>
+        <div class="mt-6">
+          <span class="text-caption text-medium-emphasis">Trusted by over 10,000+ home cooks and meal preppers</span>
+        </div>
+      </v-col>
+      <v-col cols="12" md="6">
+        <v-img src="/img/home-hero.webp" alt="Yes Chef meal planning" class="rounded-lg" height="500" cover />
+      </v-col>
+    </v-row>
+
+    <v-row class="mt-16">
+      <v-col cols="12" class="text-center">
+        <h2 class="text-h4 font-weight-bold mb-2">How It Works</h2>
+        <p class="text-subtitle-1 mx-auto" style="max-width: 600px">Three simple steps to transform your meal planning routine</p>
+      </v-col>
+    </v-row>
+
+    <v-row class="mt-6">
+      <v-col cols="12" md="4">
+        <v-card height="100%" variant="outlined" class="rounded-lg">
+          <v-card-item>
+            <v-avatar color="accent" size="56" class="mb-4">
+              <span class="text-h5 font-weight-bold">1</span>
+            </v-avatar>
+            <v-card-title class="text-h5 font-weight-bold">Plan Your Meals</v-card-title>
+            <v-card-text class="text-body-1">
+              Easily select recipes from our database or add your own favorites to create customized weekly meal plans.
+            </v-card-text>
+          </v-card-item>
         </v-card>
-      </v-card-text>
-    </v-card>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-card height="100%" variant="outlined" class="rounded-lg">
+          <v-card-item>
+            <v-avatar color="accent" size="56" class="mb-4">
+              <span class="text-h5 font-weight-bold">2</span>
+            </v-avatar>
+            <v-card-title class="text-h5 font-weight-bold">Generate Shopping Lists</v-card-title>
+            <v-card-text class="text-body-1">
+              We automatically combine ingredients from all your planned meals into a smart shopping list organized by store section.
+            </v-card-text>
+          </v-card-item>
+        </v-card>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-card height="100%" variant="outlined" class="rounded-lg">
+          <v-card-item>
+            <v-avatar color="accent" size="56" class="mb-4">
+              <span class="text-h5 font-weight-bold">3</span>
+            </v-avatar>
+            <v-card-title class="text-h5 font-weight-bold">Track Nutrition</v-card-title>
+            <v-card-text class="text-body-1">
+              Monitor your nutritional intake with detailed breakdowns and insights to help you maintain a balanced diet.
+            </v-card-text>
+          </v-card-item>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { fetchHelloMessage } from '../services/api.service';
-import { useRecipeStore } from '../stores/recipe.store';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'HomeView',
-  setup() {
-    const router = useRouter();
-    const recipeStore = useRecipeStore();
-    
-    // API test state
-    const apiMessage = ref('');
-    const apiError = ref('');
-    const apiLoading = ref(false);
-
-    // Load recipes on component mount
-    onMounted(async () => {
-      await loadRecipes();
-    });
-
-    const fetchMessage = async () => {
-      apiLoading.value = true;
-      apiError.value = '';
-      try {
-        const data = await fetchHelloMessage();
-        apiMessage.value = data.message;
-      } catch (err) {
-        apiError.value = 'Failed to connect to API';
-        console.error('API Error:', err);
-      } finally {
-        apiLoading.value = false;
-      }
-    };
-
-    const loadRecipes = async () => {
-      try {
-        await recipeStore.fetchAllRecipes();
-      } catch (err) {
-        console.error('Error loading recipes:', err);
-      }
-    };
-
-    const viewRecipe = (id: number) => {
-      router.push(`/recipes/${id}`);
-    };
-
-    const createNewRecipe = () => {
-      router.push('/recipes/new');
-    };
-
-    return {
-      // API test
-      apiMessage,
-      apiError,
-      apiLoading,
-      fetchMessage,
-      
-      // Recipe functionality
-      recipeStore,
-      loadRecipes,
-      viewRecipe,
-      createNewRecipe
-    };
-  }
+  name: 'HomeView'
 });
 </script>
 
