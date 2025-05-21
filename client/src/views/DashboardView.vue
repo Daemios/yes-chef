@@ -1,23 +1,37 @@
 <template>
   <div>
-    <h1 class="text-h4 font-weight-bold mb-6">Dashboard</h1>
+    <h1 class="text-h4 font-weight-bold mb-6">
+      Dashboard
+    </h1>
     
     <v-row>
-      <v-col cols="12" md="8">
-        <MealPlan :mealPlan="mealPlan" />
+      <v-col
+        cols="12"
+        md="8"
+      >
+        <MealPlan :meal-plan="mealPlan" />
         
         <v-row>
-          <v-col cols="12" sm="6">
+          <v-col
+            cols="12"
+            sm="6"
+          >
             <NutritionOverview :macros="macros" />
           </v-col>
           
-          <v-col cols="12" sm="6">
+          <v-col
+            cols="12"
+            sm="6"
+          >
             <ShoppingInsights />
           </v-col>
         </v-row>
       </v-col>
       
-      <v-col cols="12" md="4">
+      <v-col
+        cols="12"
+        md="4"
+      >
         <TaskCalendar 
           :tasks="prepTasks" 
           :reminders="reminders" 

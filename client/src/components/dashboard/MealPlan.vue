@@ -6,17 +6,33 @@
         <span class="text-subtitle-2 text-medium-emphasis ml-2">Next 3 Days</span>
       </div>
       <div>
-        <v-btn color="primary" variant="text" class="mr-2" prepend-icon="mdi-calendar-month">
+        <v-btn
+          color="primary"
+          variant="text"
+          class="mr-2"
+          prepend-icon="mdi-calendar-month"
+        >
           View Full Week
         </v-btn>
-        <v-btn color="primary" variant="text" prepend-icon="mdi-pencil">
+        <v-btn
+          color="primary"
+          variant="text"
+          prepend-icon="mdi-pencil"
+        >
           Edit Plan
         </v-btn>
       </div>
     </v-card-title>
-    <v-divider></v-divider>
-    <v-list class="meal-plan-list py-2" ref="mealList">
-      <div v-for="(day, index) in sortedMealPlan" :key="index" :ref="isToday(day.day) ? 'todaySection' : null">
+    <v-divider />
+    <v-list
+      ref="mealList"
+      class="meal-plan-list py-2"
+    >
+      <div
+        v-for="(day, index) in sortedMealPlan"
+        :key="index"
+        :ref="isToday(day.day) ? 'todaySection' : null"
+      >
         <v-list-subheader 
           class="d-flex justify-space-between align-center py-3 px-4" 
           :class="{'current-day-header': isToday(day.day)}"
@@ -25,38 +41,84 @@
             <span>{{ day.day }}</span>
             <span class="text-caption text-medium-emphasis ml-2">{{ getFormattedDate(day.day) }}</span>
           </div>
-          <v-chip v-if="isToday(day.day)" size="x-small" color="primary" class="ml-2">Today</v-chip>
+          <v-chip
+            v-if="isToday(day.day)"
+            size="x-small"
+            color="primary"
+            class="ml-2"
+          >
+            Today
+          </v-chip>
         </v-list-subheader>
-        <v-list-item density="comfortable" class="meal-item">
-          <template v-slot:prepend>
+        <v-list-item
+          density="comfortable"
+          class="meal-item"
+        >
+          <template #prepend>
             <div class="meal-icon-container">
-              <v-icon color="amber-darken-2" size="small">mdi-coffee</v-icon>
+              <v-icon
+                color="amber-darken-2"
+                size="small"
+              >
+                mdi-coffee
+              </v-icon>
             </div>
           </template>
-          <v-list-item-title class="meal-title">{{ day.breakfast }}</v-list-item-title>
-          <v-list-item-subtitle class="meal-subtitle">Breakfast</v-list-item-subtitle>
+          <v-list-item-title class="meal-title">
+            {{ day.breakfast }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="meal-subtitle">
+            Breakfast
+          </v-list-item-subtitle>
         </v-list-item>
         
-        <v-list-item density="comfortable" class="meal-item">
-          <template v-slot:prepend>
+        <v-list-item
+          density="comfortable"
+          class="meal-item"
+        >
+          <template #prepend>
             <div class="meal-icon-container">
-              <v-icon color="blue" size="small">mdi-food-apple</v-icon>
+              <v-icon
+                color="blue"
+                size="small"
+              >
+                mdi-food-apple
+              </v-icon>
             </div>
           </template>
-          <v-list-item-title class="meal-title">{{ day.lunch }}</v-list-item-title>
-          <v-list-item-subtitle class="meal-subtitle">Lunch</v-list-item-subtitle>
+          <v-list-item-title class="meal-title">
+            {{ day.lunch }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="meal-subtitle">
+            Lunch
+          </v-list-item-subtitle>
         </v-list-item>
         
-        <v-list-item density="comfortable" class="meal-item">
-          <template v-slot:prepend>
+        <v-list-item
+          density="comfortable"
+          class="meal-item"
+        >
+          <template #prepend>
             <div class="meal-icon-container">
-              <v-icon color="deep-purple" size="small">mdi-food</v-icon>
+              <v-icon
+                color="deep-purple"
+                size="small"
+              >
+                mdi-food
+              </v-icon>
             </div>
           </template>
-          <v-list-item-title class="meal-title">{{ day.dinner }}</v-list-item-title>
-          <v-list-item-subtitle class="meal-subtitle">Dinner</v-list-item-subtitle>
+          <v-list-item-title class="meal-title">
+            {{ day.dinner }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="meal-subtitle">
+            Dinner
+          </v-list-item-subtitle>
         </v-list-item>
-        <v-divider v-if="index < sortedMealPlan.length - 1" class="my-2"></v-divider>
+        <v-divider
+          v-if="index < sortedMealPlan.length - 1"
+          class="my-2"
+        />
       </div>
     </v-list>
   </v-card>

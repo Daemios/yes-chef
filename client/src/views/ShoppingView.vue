@@ -1,189 +1,322 @@
 <template>
   <div>
     <!-- Mobile-optimized header -->
-    <div class="d-flex flex-column flex-sm-row justify-space-between align-center mb-4">
-      <h1 class="text-h4 font-weight-bold mb-3 mb-sm-0">Shopping List</h1>
+    <div class="d-flex flex-column flex-sm-row justify-space-between align-center mb-3">
+      <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">
+        Shopping List
+      </h1>
       <div class="d-flex">
         <v-menu>
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn 
               color="primary" 
               variant="outlined" 
+              density="comfortable"
               v-bind="props"
               class="mr-2"
             >
-              <v-icon start>mdi-dots-vertical</v-icon>
+              <v-icon start>
+                mdi-dots-vertical
+              </v-icon>
               Options
             </v-btn>
           </template>
           <v-list>
             <v-list-item @click="showAllItems = !showAllItems">
               <v-list-item-title>
-                <v-icon start>{{ showAllItems ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
+                <v-icon start>
+                  {{ showAllItems ? 'mdi-eye-off' : 'mdi-eye' }}
+                </v-icon>
                 {{ showAllItems ? 'Hide Purchased' : 'Show All Items' }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item @click="markAllPurchased">
               <v-list-item-title>
-                <v-icon start>mdi-check-all</v-icon>
+                <v-icon start>
+                  mdi-check-all
+                </v-icon>
                 Mark All as Purchased
               </v-list-item-title>
             </v-list-item>
             <v-list-item @click="clearPurchased">
               <v-list-item-title>
-                <v-icon start>mdi-delete</v-icon>
+                <v-icon start>
+                  mdi-delete
+                </v-icon>
                 Clear Purchased Items
               </v-list-item-title>
             </v-list-item>
-            <v-divider></v-divider>
+            <v-divider />
             <v-list-item @click="printList">
               <v-list-item-title>
-                <v-icon start>mdi-printer</v-icon>
+                <v-icon start>
+                  mdi-printer
+                </v-icon>
                 Print List
               </v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="emailList">
+            </v-list-item>            <v-list-item @click="emailList">
               <v-list-item-title>
-                <v-icon start>mdi-email-outline</v-icon>
+                <v-icon start>
+                  mdi-email-outline
+                </v-icon>
                 Email List
+              </v-list-item-title>
+            </v-list-item>
+            <v-divider />            <v-list-item @click="sendToInstacart">
+              <v-list-item-title>
+                <v-icon start>
+                  mdi-cart-outline
+                </v-icon>
+                Send to Instacart
+                <v-chip
+                  size="x-small"
+                  color="accent"
+                  class="ml-2"
+                >
+                  Premium
+                </v-chip>
               </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
         
-        <v-btn color="accent" @click="dialog = true">
-          <v-icon start>mdi-plus</v-icon>
+        <v-btn
+          color="accent"
+          density="comfortable"
+          @click="dialog = true"
+        >
+          <v-icon start>
+            mdi-plus
+          </v-icon>
           Add Item
         </v-btn>
       </div>
     </div>
     
-    <!-- Search box - more prominent on mobile -->
-    <v-text-field
-      v-model="search"
-      label="Search items"
-      density="comfortable"
-      variant="outlined"
-      hide-details
-      class="mb-4"
-      prepend-inner-icon="mdi-magnify"
-      clearable
-    ></v-text-field>
-    
-    <!-- Shopping progress bar -->
-    <div class="mb-4">
-      <div class="d-flex justify-space-between align-center mb-1">
-        <div class="text-body-2">
-          <span class="font-weight-medium">{{ purchasedItems }}/{{ totalItems }}</span> 
-          items purchased
-        </div>
-        <div class="text-body-2 text-medium-emphasis">
-          Est. Cost: <span class="font-weight-medium">$65.20</span>
-        </div>
-      </div>
-      <v-progress-linear
-        :model-value="(purchasedItems / Math.max(totalItems, 1)) * 100"
-        color="success"
-        height="8"
-        rounded
-      ></v-progress-linear>
-    </div>
-    
-    <!-- Shopping list content - optimized for mobile -->
-    <v-expansion-panels v-model="expandedPanels" multiple variant="accordion">
-      <v-expansion-panel
-        v-for="(section, index) in filteredSections"
-        :key="index"
-        :value="index"
-        :class="{'opacity-70': section.allPurchased && !showAllItems}"
+    <div class="d-flex flex-column flex-lg-row gap-3">
+      <!-- Left column for mobile, left side for desktop -->
+      <div
+        class="flex-grow-1 flex-lg-grow-0"
+        style="width: 100%; max-width: 100%; flex-basis: 100%; box-sizing: border-box;"
+        :class="{'flex-lg-basis-67': !selectedItem}"
       >
-        <v-expansion-panel-title>
-          <div class="d-flex align-center w-100">
-            <v-icon :icon="section.icon" :color="section.color" class="mr-3"></v-icon>
-            <div class="flex-grow-1">
-              <div class="d-flex align-center">
-                <strong>{{ section.name }}</strong>
-                <v-chip
-                  size="x-small"
-                  :color="section.allPurchased ? 'success' : 'primary'"
-                  class="ml-2"
-                >
-                  {{ section.items.length }}
-                </v-chip>
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ section.purchasedCount }}/{{ section.items.length }} purchased
-              </div>
-            </div>
-            <v-progress-circular
-              :model-value="(section.purchasedCount / section.items.length) * 100"
-              :color="section.allPurchased ? 'success' : 'primary'"
-              size="24"
-              width="2"
-              class="mr-2 d-none d-sm-flex"
-            ></v-progress-circular>
-          </div>
-        </v-expansion-panel-title>
+        <!-- Search box and progress bar -->
+        <v-text-field
+          v-model="search"
+          label="Search items"
+          density="compact"
+          variant="outlined"
+          hide-details
+          class="mb-3"
+          prepend-inner-icon="mdi-magnify"
+          clearable
+        />
         
-        <v-expansion-panel-text>
-          <v-list class="pa-0">
-            <v-list-item
-              v-for="(item, itemIndex) in filteredItems(section)"
-              :key="itemIndex"
-              :class="{'bg-grey-lighten-4': item.purchased}"
-              rounded
-              class="mb-1 transition"
-              @click="toggleItemPurchased(section, item)"
+        <!-- Shopping progress bar -->
+        <div class="mb-3">
+          <div class="d-flex justify-space-between align-center mb-1">
+            <div class="text-body-2">
+              <span class="font-weight-medium">{{ purchasedItems }}/{{ totalItems }}</span> 
+              items purchased
+            </div>
+            <div class="text-body-2 text-medium-emphasis">
+              Est. Cost: <span class="font-weight-medium">$65.20</span>
+            </div>
+          </div>
+          <v-progress-linear
+            :model-value="(purchasedItems / Math.max(totalItems, 1)) * 100"
+            color="success"
+            height="8"
+            rounded
+          />
+        </div>
+        <!-- Grid layout with responsive components -->
+        <v-row class="mt-0">
+          <v-col 
+            v-for="(section, index) in filteredSections" 
+            :key="index"
+            cols="12"
+            sm="6"
+            lg="6"
+            class="py-1"
+          >
+            <!-- Use mobile component on small screens -->
+            <mobile-shopping-section
+              v-if="!isDesktop"
+              :section="section"
+              :show-all-items="showAllItems"
+              :search-term="search"
+              @toggle-purchased="(item) => toggleItemPurchased(section, item)"
+              @select-item="(item) => selectItem(section, item)"
+            />
+            
+            <!-- Use desktop component on larger screens -->
+            <desktop-shopping-section
+              v-else
+              :section="section"
+              :show-all-items="showAllItems"
+              :search-term="search"
+              @toggle-purchased="(item) => toggleItemPurchased(section, item)"
+              @select-item="(item) => selectItem(section, item)"
+            />
+          </v-col>
+        </v-row>
+        
+        <!-- Empty state for no items or when all filtered out -->
+        <v-card
+          v-if="filteredSections.length === 0"
+          class="mt-4 pa-5 text-center"
+          variant="outlined"
+          elevation="0"
+        >
+          <v-icon
+            icon="mdi-cart-outline"
+            size="x-large"
+            color="primary"
+            class="mb-3"
+          />
+          <h3 class="text-h5 mb-2">
+            No items to display
+          </h3>
+          <p class="text-body-1 text-medium-emphasis mb-4">
+            {{ showAllItems ? "Your shopping list is empty" : "All items have been purchased" }}
+          </p>      <v-btn
+            v-if="!showAllItems"
+            color="primary"
+            density="comfortable"
+            class="px-4"
+            @click="showAllItems = true"
+          >
+            <v-icon
+              start
             >
-              <template v-slot:prepend>
-                <v-checkbox
-                  v-model="item.purchased"
-                  color="success"
-                  hide-details
-                  @click.stop
-                ></v-checkbox>
-              </template>
+              mdi-eye
+            </v-icon>
+            Show All Items
+          </v-btn>
+          <v-btn
+            v-else
+            color="primary"
+            density="comfortable"
+            class="px-4"
+            @click="dialog = true"
+          >
+            <v-icon
+              start
+            >
+              mdi-plus
+            </v-icon>
+            Add an Item
+          </v-btn>
+        </v-card>
+      </div>
+      
+      <!-- Right side detail panel (desktop only) -->
+      <div 
+        v-if="selectedItem" 
+        class="d-none d-lg-block" 
+        style="width: 33%; flex-basis: 33%; flex-grow: 0;"
+      >
+        <v-card
+          variant="outlined"
+          class="sticky-top"
+          style="top: 16px;"
+        >
+          <v-card-item>
+            <v-card-title>
+              {{ selectedItem.name }}
+              <v-chip
+                size="small"
+                :color="selectedItem.purchased ? 'success' : 'primary'"
+                class="ml-2"
+              >
+                {{ selectedItem.purchased ? 'Purchased' : 'To Buy' }}
+              </v-chip>
+            </v-card-title>
+            <v-card-subtitle class="mt-1">
+              {{ selectedItem.quantity }}
+            </v-card-subtitle>
+          </v-card-item>
+          
+          <v-card-text>
+            <div
+              v-if="selectedItem.recipe"
+              class="mb-4"
+            >
+              <div class="text-subtitle-1 font-weight-bold mb-2">
+                Recipe
+              </div>
+              <v-chip
+                color="primary"
+                variant="outlined"
+                size="large"
+                prepend-icon="mdi-book-open-variant"
+                class="mb-2"
+              >
+                {{ selectedItem.recipe }}
+              </v-chip>
+            </div>
+            
+            <div class="text-subtitle-1 font-weight-bold mb-2">
+              Section
+            </div>
+            <v-chip
+              :color="selectedSection.color"
+              size="large"
+              prepend-icon="mdi-tag"
+              class="mb-4"
+            >
+              {{ selectedSection.name }}
+            </v-chip>
+            
+            <!-- Extra information -->
+            <div class="text-subtitle-1 font-weight-bold mb-2">
+              Nutrition Info
+            </div>
+            <v-list
+              density="compact"
+              class="bg-grey-lighten-5 rounded mb-3"
+            >
+              <v-list-item>
+                <v-list-item-title>Calories</v-list-item-title>
+                <v-list-item-subtitle class="text-right">
+                  120 kcal
+                </v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Protein</v-list-item-title>
+                <v-list-item-subtitle class="text-right">
+                  5g
+                </v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Carbs</v-list-item-title>
+                <v-list-item-subtitle class="text-right">
+                  20g
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            
+            <div class="d-flex justify-space-between">
+              <v-btn
+                prepend-icon="mdi-checkbox-marked-circle-outline"
+                :color="selectedItem.purchased ? 'error' : 'success'"
+                variant="outlined"
+                @click="toggleItemPurchased(selectedSection, selectedItem)"
+              >
+                {{ selectedItem.purchased ? 'Mark Unpurchased' : 'Mark Purchased' }}
+              </v-btn>
               
-              <v-list-item-title :class="{ 'text-decoration-line-through': item.purchased }">
-                {{ item.name }}
-              </v-list-item-title>
-              
-              <v-list-item-subtitle class="d-flex align-center">
-                <span class="font-weight-medium">{{ item.quantity }}</span>
-                <v-chip
-                  v-if="item.recipe"
-                  size="x-small"
-                  variant="outlined"
-                  color="primary"
-                  class="ml-2"
-                >
-                  {{ item.recipe }}
-                </v-chip>
-              </v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    
-    <!-- Empty state for no items or when all filtered out -->
-    <v-card
-      v-if="filteredSections.length === 0"
-      class="mt-4 pa-4 text-center"
-      variant="outlined"
-    >
-      <v-icon icon="mdi-cart" size="large" color="primary" class="mb-2"></v-icon>
-      <h3 class="text-h6 mb-2">No items to display</h3>
-      <p class="text-body-2 text-medium-emphasis mb-4">
-        {{ showAllItems ? "Your shopping list is empty" : "All items have been purchased" }}
-      </p>
-      <v-btn v-if="!showAllItems" color="primary" @click="showAllItems = true">
-        Show All Items
-      </v-btn>
-      <v-btn v-else color="primary" @click="dialog = true">
-        Add an Item
-      </v-btn>
-    </v-card>
+              <v-btn
+                icon="mdi-close"
+                variant="text"
+                @click="selectedItem = null; selectedSection = null"
+              />
+            </div>
+          </v-card-text>
+        </v-card>
+      </div>
+    </div>
     
     <!-- Floating action button for quick actions on mobile -->
     <v-btn
@@ -193,12 +326,15 @@
       size="large"
       elevation="4"
       @click="markAllPurchased"
-    ></v-btn>
+    />
     
     <!-- Add Item Dialog -->
-    <v-dialog v-model="dialog" max-width="500">
+    <v-dialog
+      v-model="dialog"
+      max-width="500"
+    >
       <v-card>
-        <v-card-title class="text-h5">
+        <v-card-title class="text-h5 pb-2">
           Add Item to Shopping List
         </v-card-title>
         
@@ -208,39 +344,58 @@
               v-model="newItem.name"
               label="Item Name"
               variant="outlined"
+              density="comfortable"
               required
+              class="mb-2"
+              placeholder="Enter item name"
               :rules="[v => !!v || 'Item name is required']"
-            ></v-text-field>
+            />
             
             <v-text-field
               v-model="newItem.quantity"
               label="Quantity"
               variant="outlined"
+              density="comfortable"
+              class="mb-2"
               placeholder="e.g., 2 lbs, 1 package"
-            ></v-text-field>
+            />
             
             <v-select
               v-model="newItem.section"
               :items="sectionOptions"
               label="Section"
               variant="outlined"
+              density="comfortable"
+              class="mb-2"
               required
               :rules="[v => !!v || 'Section is required']"
-            ></v-select>
+            />
             
             <v-text-field
               v-model="newItem.recipe"
               label="Recipe (optional)"
               variant="outlined"
+              density="comfortable"
               placeholder="What recipe is this for?"
-            ></v-text-field>
+            />
           </v-form>
         </v-card-text>
         
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="addItem">Add Item</v-btn>
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer />
+          <v-btn
+            variant="text"
+            class="mr-2"
+            @click="dialog = false"
+          >
+            Cancel
+          </v-btn>          <v-btn
+            color="primary"
+            class="px-4"
+            @click="addItem"
+          >
+            Add Item
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -248,17 +403,45 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
+import MobileShoppingSection from '../components/shopping/MobileShoppingSection.vue';
+import DesktopShoppingSection from '../components/shopping/DesktopShoppingSection.vue';
 
 export default defineComponent({
   name: 'ShoppingView',
+  
+  components: {
+    MobileShoppingSection,
+    DesktopShoppingSection
+  },
+  
   setup() {
     const authStore = useAuthStore();
     const search = ref('');
     const dialog = ref(false);
     const expandedPanels = ref([0]); // First panel expanded by default
     const showAllItems = ref(true);
+    const expandedSections = ref([0]); // First section expanded by default
+    const selectedItem = ref(null);
+    const selectedSection = ref(null);
+    
+    // Responsive layout handling
+    const isDesktop = ref(window.innerWidth >= 960); // lg breakpoint in Vuetify
+    
+    // Update the desktop state on window resize
+    const handleResize = () => {
+      isDesktop.value = window.innerWidth >= 960;
+    };
+    
+    // Set up and clean up window resize listener
+    onMounted(() => {
+      window.addEventListener('resize', handleResize);
+    });
+    
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize);
+    });
     
     // Form reference for validation
     const form = ref(null);
@@ -428,14 +611,15 @@ export default defineComponent({
     
     // Add a new item
     const addItem = () => {
-      if (!form.value.validate().valid) {
+      // Skip validation for now as the form.value.validate() is causing issues
+      // We'll just check if the required fields are filled
+      if (!newItem.value.name || !newItem.value.section) {
         return;
       }
       
       const targetSection = shoppingListSections.value.find(
         section => section.name === newItem.value.section
       );
-      
       if (targetSection) {
         targetSection.items.push({
           name: newItem.value.name,
@@ -467,6 +651,23 @@ export default defineComponent({
       alert('This would email your shopping list in a real application.');
     };
     
+    // Send shopping list to Instacart (Premium feature)
+    const sendToInstacart = () => {
+      const userPlan = authStore.userPlan;
+      
+      if (userPlan === 'premium' || userPlan === 'family') {
+        alert('Your shopping list has been sent to Instacart! You can now review and complete your order on the Instacart platform.');
+      } else {
+        alert('Instacart integration is available for Premium and Family plan subscribers only. Please upgrade your plan to access this feature.');
+      }
+    };
+    
+    // Select an item to show details (desktop)
+    const selectItem = (section, item) => {
+      selectedItem.value = item;
+      selectedSection.value = section;
+    };
+    
     return {
       authStore,
       search,
@@ -481,13 +682,20 @@ export default defineComponent({
       totalItems,
       purchasedItems,
       expandedPanels,
+      expandedSections,
+      selectedItem,
+      selectedSection,
       showAllItems,
       toggleItemPurchased,
+      toggleExpandSection: () => {}, // No longer needed as it's handled by component
+      selectItem,
       markAllPurchased,
       clearPurchased,
       addItem,
       printList,
-      emailList
+      emailList,
+      sendToInstacart,
+      isDesktop
     };
   }
 });
@@ -510,5 +718,34 @@ export default defineComponent({
   .v-expansion-panel-text {
     display: block !important;
   }
+}
+
+/* Custom styling for shopping list */
+.shopping-panels .v-expansion-panel {
+  margin-bottom: 8px;
+}
+
+.shopping-panels .v-expansion-panel-title {
+  padding: 10px 16px;
+}
+
+.shopping-list .v-list-item {
+  min-height: 40px !important;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.purchased-item {
+  background-color: rgba(var(--v-theme-success), 0.05) !important;
+  border-left: 3px solid rgb(var(--v-theme-success)) !important;
+}
+
+.shopping-list .v-list-item:hover {
+  background-color: rgba(var(--v-theme-primary), 0.05);
+}
+
+/* Custom cursor styles */
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

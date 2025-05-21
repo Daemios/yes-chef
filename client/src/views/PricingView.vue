@@ -2,9 +2,17 @@
   <div>
     <!-- Header section -->
     <v-row>
-      <v-col cols="12" class="text-center">
-        <h1 class="text-h3 font-weight-bold mb-3">Simple, Transparent Pricing</h1>
-        <p class="text-subtitle-1 mx-auto" style="max-width: 700px">
+      <v-col
+        cols="12"
+        class="text-center"
+      >
+        <h1 class="text-h3 font-weight-bold mb-3">
+          Simple, Transparent Pricing
+        </h1>
+        <p
+          class="text-subtitle-1 mx-auto"
+          style="max-width: 700px"
+        >
           Choose the plan that's right for you. All plans include a 14-day free trial.
         </p>
       </v-col>
@@ -12,10 +20,26 @@
 
     <!-- Pricing cards -->
     <v-row class="mt-6 justify-center">
-      <v-col cols="12" md="10" class="pa-0">
-        <v-card class="mx-auto rounded-xl pa-0 overflow-visible" flat>
-          <v-row no-gutters class="overflow-visible">
-            <v-col cols="12" md="4" v-for="(plan, index) in plans" :key="index" class="d-flex position-relative overflow-visible">
+      <v-col
+        cols="12"
+        md="10"
+        class="pa-0"
+      >
+        <v-card
+          class="mx-auto rounded-xl pa-0 overflow-visible"
+          flat
+        >
+          <v-row
+            no-gutters
+            class="overflow-visible"
+          >
+            <v-col
+              v-for="(plan, index) in plans"
+              :key="index"
+              cols="12"
+              md="4"
+              class="d-flex position-relative overflow-visible"
+            >
               <v-card
                 width="100%"
                 flat
@@ -26,30 +50,47 @@
                 :style="plan.popular && $vuetify.display.mdAndUp ? 'margin: -12px 0; height: calc(100% + 24px); z-index: 1;' : ''"
               >
                 <!-- Popular badge -->
-                <div v-if="plan.popular" class="text-center bg-accent text-white text-uppercase font-weight-medium pa-2">
+                <div
+                  v-if="plan.popular"
+                  class="text-center bg-accent text-white text-uppercase font-weight-medium pa-2"
+                >
                   Most Popular
                 </div>
                 
                 <!-- Plan header -->
                 <div class="text-center pt-6 px-6">
-                  <h2 class="text-h5 font-weight-bold mb-6">{{ plan.name }}</h2>
+                  <h2 class="text-h5 font-weight-bold mb-6">
+                    {{ plan.name }}
+                  </h2>
                   
                   <!-- Price display -->
                   <div class="d-flex justify-center align-center mb-1">
                     <span class="text-subtitle-1 mr-1">$</span>
                     <span class="text-h2 font-weight-bold">{{ plan.price }}</span>
                   </div>
-                  <div class="text-subtitle-2 text-medium-emphasis mb-4">per month</div>
+                  <div class="text-subtitle-2 text-medium-emphasis mb-4">
+                    per month
+                  </div>
                   
-                  <p class="text-body-2 mb-6">{{ plan.description }}</p>
+                  <p class="text-body-2 mb-6">
+                    {{ plan.description }}
+                  </p>
                 </div>
                 
-                <v-divider></v-divider>
+                <v-divider />
                 
                 <!-- Features list -->
                 <div class="pa-6 flex-grow-1">
-                  <div v-for="(feature, i) in plan.features" :key="i" class="d-flex align-start mb-3">
-                    <v-icon :color="plan.popular ? 'accent' : 'primary'" size="small" class="mr-3 mt-n1">
+                  <div
+                    v-for="(feature, i) in plan.features"
+                    :key="i"
+                    class="d-flex align-start mb-3"
+                  >
+                    <v-icon
+                      :color="plan.popular ? 'accent' : 'primary'"
+                      size="small"
+                      class="mr-3 mt-n1"
+                    >
                       mdi-check-circle
                     </v-icon>
                     <span class="text-body-1">{{ feature }}</span>
@@ -77,15 +118,26 @@
     
     <!-- FAQ section -->
     <v-row class="mt-12">
-      <v-col cols="12" class="text-center">
-        <h2 class="text-h5 font-weight-bold mb-3">Frequently Asked Questions</h2>
+      <v-col
+        cols="12"
+        class="text-center"
+      >
+        <h2 class="text-h5 font-weight-bold mb-3">
+          Frequently Asked Questions
+        </h2>
       </v-col>
     </v-row>
     
     <v-row class="justify-center">
-      <v-col cols="12" md="8">
+      <v-col
+        cols="12"
+        md="8"
+      >
         <v-expansion-panels variant="accordion">
-          <v-expansion-panel v-for="(faq, index) in faqs" :key="index">
+          <v-expansion-panel
+            v-for="(faq, index) in faqs"
+            :key="index"
+          >
             <v-expansion-panel-title>{{ faq.question }}</v-expansion-panel-title>
             <v-expansion-panel-text>{{ faq.answer }}</v-expansion-panel-text>
           </v-expansion-panel>
@@ -114,8 +166,7 @@ export default defineComponent({
           'Basic nutritional tracking',
           'Mobile access'
         ]
-      },
-      {
+      },      {
         name: 'Premium',
         price: 5.99,
         description: 'Complete meal planning solution for the whole family',
@@ -127,6 +178,7 @@ export default defineComponent({
           'Meal plan sharing',
           'Budget tracking',
           'Premium recipe database',
+          'Instacart integration',
           'Customer support'
         ]
       },

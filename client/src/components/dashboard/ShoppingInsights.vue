@@ -1,7 +1,12 @@
 <template>
   <v-card height="100%">
     <v-card-title class="text-h6">
-      <v-icon start color="success">mdi-calendar-check</v-icon>
+      <v-icon
+        start
+        color="success"
+      >
+        mdi-calendar-check
+      </v-icon>
       Shopping Insights
     </v-card-title>
     <v-card-text>
@@ -17,7 +22,9 @@
           >
             {{ fridgeInventory }}%
           </v-progress-circular>
-          <div class="text-body-2 font-weight-medium">Fridge<br/>Inventory</div>
+          <div class="text-body-2 font-weight-medium">
+            Fridge<br>Inventory
+          </div>
         </v-col>
         <v-col cols="6">
           <v-progress-circular
@@ -30,11 +37,18 @@
           >
             {{ shoppingProgress }}%
           </v-progress-circular>
-          <div class="text-body-2 font-weight-medium">Shopping<br/>Progress</div>
+          <div class="text-body-2 font-weight-medium">
+            Shopping<br>Progress
+          </div>
         </v-col>
       </v-row>
       <div class="text-center mt-4">
-        <v-btn color="primary" variant="text" size="small" to="/shopping">
+        <v-btn
+          color="primary"
+          variant="text"
+          size="small"
+          to="/shopping"
+        >
           View Shopping List
         </v-btn>
       </div>

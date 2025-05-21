@@ -35,9 +35,9 @@ export const useAuthStore = defineStore('auth', {
       console.log(`Auth toggled: ${this.isAuthenticated ? 'Logged in' : 'Logged out'}`);
     }
   },
-  
-  getters: {
+    getters: {
     fullName: (state) => `${state.user.firstName} ${state.user.lastName}`,
-    userRole: (state) => state.user.role
+    userRole: (state) => state.user.role,
+    userPlan: (state) => state.user.plan.toLowerCase()
   }
 });

@@ -1,19 +1,32 @@
 <template>
   <div>
-    <h1 class="text-h4 font-weight-bold mb-6">Help & Support</h1>
+    <h1 class="text-h4 font-weight-bold mb-6">
+      Help & Support
+    </h1>
     
     <v-row>
-      <v-col cols="12" md="8">
+      <v-col
+        cols="12"
+        md="8"
+      >
         <v-card class="mb-6">
           <v-card-title class="text-h5 font-weight-bold">
-            <v-icon start color="primary">mdi-help-circle</v-icon>
+            <v-icon
+              start
+              color="primary"
+            >
+              mdi-help-circle
+            </v-icon>
             Frequently Asked Questions
           </v-card-title>
           
-          <v-divider></v-divider>
+          <v-divider />
           
           <v-expansion-panels variant="accordion">
-            <v-expansion-panel v-for="(faq, index) in faqs" :key="index">
+            <v-expansion-panel
+              v-for="(faq, index) in faqs"
+              :key="index"
+            >
               <v-expansion-panel-title>{{ faq.question }}</v-expansion-panel-title>
               <v-expansion-panel-text>{{ faq.answer }}</v-expansion-panel-text>
             </v-expansion-panel>
@@ -22,11 +35,16 @@
         
         <v-card>
           <v-card-title class="text-h5 font-weight-bold">
-            <v-icon start color="primary">mdi-message-text</v-icon>
+            <v-icon
+              start
+              color="primary"
+            >
+              mdi-message-text
+            </v-icon>
             Contact Support
           </v-card-title>
           
-          <v-divider></v-divider>
+          <v-divider />
           
           <v-card-text class="pa-4">
             <p class="text-body-1 mb-4">
@@ -40,14 +58,14 @@
                 label="What can we help you with?"
                 variant="outlined"
                 required
-              ></v-select>
+              />
               
               <v-text-field
                 v-model="supportRequest.subject"
                 label="Subject"
                 variant="outlined"
                 required
-              ></v-text-field>
+              />
               
               <v-textarea
                 v-model="supportRequest.message"
@@ -56,7 +74,7 @@
                 rows="5"
                 required
                 placeholder="Please describe your issue in detail"
-              ></v-textarea>
+              />
               
               <v-file-input
                 v-model="supportRequest.attachments"
@@ -66,12 +84,17 @@
                 multiple
                 accept="image/*, .pdf, .doc, .docx"
                 placeholder="Add screenshots or files that might help us understand your issue"
-              ></v-file-input>
+              />
               
               <v-card-actions class="pa-0 mt-4">
-                <v-spacer></v-spacer>
-                <v-btn color="primary" size="large">
-                  <v-icon start>mdi-send</v-icon>
+                <v-spacer />
+                <v-btn
+                  color="primary"
+                  size="large"
+                >
+                  <v-icon start>
+                    mdi-send
+                  </v-icon>
                   Submit Request
                 </v-btn>
               </v-card-actions>
@@ -80,22 +103,50 @@
         </v-card>
       </v-col>
       
-      <v-col cols="12" md="4">
+      <v-col
+        cols="12"
+        md="4"
+      >
         <v-card class="mb-6">
           <v-card-title class="text-h6">
-            <v-icon start color="primary">mdi-information</v-icon>
+            <v-icon
+              start
+              color="primary"
+            >
+              mdi-information
+            </v-icon>
             Support Info
           </v-card-title>
           
-          <v-divider></v-divider>
+          <v-divider />
           
           <v-list density="compact">
-            <v-list-item prepend-icon="mdi-email" title="Email Support" subtitle="support@yeschef.com"></v-list-item>
-            <v-list-item prepend-icon="mdi-phone" title="Phone Support" subtitle="+1 (555) 123-4567"></v-list-item>
-            <v-list-item prepend-icon="mdi-clock" title="Support Hours" subtitle="Mon-Fri, 9am - 5pm EST"></v-list-item>
-            <v-list-item prepend-icon="mdi-chat" title="Live Chat" subtitle="Available on the website">
-              <template v-slot:append>
-                <v-btn color="primary" size="small" variant="text">
+            <v-list-item
+              prepend-icon="mdi-email"
+              title="Email Support"
+              subtitle="support@yeschef.com"
+            />
+            <v-list-item
+              prepend-icon="mdi-phone"
+              title="Phone Support"
+              subtitle="+1 (555) 123-4567"
+            />
+            <v-list-item
+              prepend-icon="mdi-clock"
+              title="Support Hours"
+              subtitle="Mon-Fri, 9am - 5pm EST"
+            />
+            <v-list-item
+              prepend-icon="mdi-chat"
+              title="Live Chat"
+              subtitle="Available on the website"
+            >
+              <template #append>
+                <v-btn
+                  color="primary"
+                  size="small"
+                  variant="text"
+                >
                   Start Chat
                 </v-btn>
               </template>
@@ -105,23 +156,38 @@
         
         <v-card class="mb-6">
           <v-card-title class="text-h6">
-            <v-icon start color="success">mdi-book-open-page-variant</v-icon>
+            <v-icon
+              start
+              color="success"
+            >
+              mdi-book-open-page-variant
+            </v-icon>
             Knowledge Base
           </v-card-title>
           
-          <v-divider></v-divider>
+          <v-divider />
           
           <v-list>
-            <v-list-item v-for="(article, index) in popularArticles" :key="index">
+            <v-list-item
+              v-for="(article, index) in popularArticles"
+              :key="index"
+            >
               <v-list-item-title>{{ article.title }}</v-list-item-title>
-              <template v-slot:append>
-                <v-btn variant="text" size="small" icon="mdi-open-in-new"></v-btn>
+              <template #append>
+                <v-btn
+                  variant="text"
+                  size="small"
+                  icon="mdi-open-in-new"
+                />
               </template>
             </v-list-item>
           </v-list>
           
           <v-card-actions class="justify-center">
-            <v-btn color="primary" variant="text">
+            <v-btn
+              color="primary"
+              variant="text"
+            >
               Browse All Articles
             </v-btn>
           </v-card-actions>
@@ -129,30 +195,47 @@
         
         <v-card>
           <v-card-title class="text-h6">
-            <v-icon start color="warning">mdi-youtube</v-icon>
+            <v-icon
+              start
+              color="warning"
+            >
+              mdi-youtube
+            </v-icon>
             Video Tutorials
           </v-card-title>
           
-          <v-divider></v-divider>
+          <v-divider />
           
           <v-card-text class="pa-0">
             <v-list>
-              <v-list-item v-for="(video, index) in videos" :key="index">
-                <template v-slot:prepend>
+              <v-list-item
+                v-for="(video, index) in videos"
+                :key="index"
+              >
+                <template #prepend>
                   <v-avatar rounded>
-                    <v-img :src="video.thumbnail" alt="Video thumbnail"></v-img>
+                    <v-img
+                      :src="video.thumbnail"
+                      alt="Video thumbnail"
+                    />
                   </v-avatar>
                 </template>
                 <v-list-item-title>{{ video.title }}</v-list-item-title>
                 <v-list-item-subtitle>{{ video.duration }}</v-list-item-subtitle>
-                <template v-slot:append>
-                  <v-btn icon="mdi-play-circle" variant="text"></v-btn>
+                <template #append>
+                  <v-btn
+                    icon="mdi-play-circle"
+                    variant="text"
+                  />
                 </template>
               </v-list-item>
             </v-list>
             
             <v-card-actions class="justify-center">
-              <v-btn color="primary" variant="text">
+              <v-btn
+                color="primary"
+                variant="text"
+              >
                 View All Tutorials
               </v-btn>
             </v-card-actions>
@@ -185,10 +268,13 @@ export default defineComponent({
       {
         question: 'How accurate are the nutritional calculations?',
         answer: 'Our nutritional data is sourced from the USDA Food Data Central and is regularly updated. While we strive for accuracy, nutritional values can vary based on specific brands and preparation methods. The data should be considered an approximation for general dietary planning.'
-      },
-      {
+      },      {
         question: 'Can I add my own recipes?',
         answer: 'Absolutely! Go to the Recipes section and click "Add Recipe." You can manually enter the recipe details or import recipes from other websites using our browser extension. Custom recipes will be included in your meal plans and shopping lists just like our database recipes.'
+      },
+      {
+        question: 'How does the Instacart integration work?',
+        answer: 'Premium and Family plan users can automatically send their shopping lists to Instacart. Simply click the "Send to Instacart" button on any shopping list, and we\'ll transfer your ingredients to your Instacart cart. You can then make any adjustments and complete your order through the Instacart platform.'
       }
     ];
     
