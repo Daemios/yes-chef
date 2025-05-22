@@ -31,5 +31,10 @@
         "**/dist": true,
         "**/.git": true,
         "**/coverage*": true
-    }
+    },
+    "cSpell.words": [
+        "Instacart",
+        "unpurchased",
+        "Vuetify"
+    ]
 }

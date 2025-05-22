@@ -35,6 +35,7 @@
         <TaskCalendar 
           :tasks="prepTasks" 
           :reminders="reminders" 
+          :meal-plan-items="calendarMeals"
           @add-activity="addNewActivity"
         />
       </v-col>
@@ -48,6 +49,7 @@ import TaskCalendar from '@/components/dashboard/TaskCalendar.vue';
 import MealPlan from '@/components/dashboard/MealPlan.vue';
 import NutritionOverview from '@/components/dashboard/NutritionOverview.vue';
 import ShoppingInsights from '@/components/dashboard/ShoppingInsights.vue';
+import { useMealPrepStore } from '@/stores/meal-prep.store';
 
 export default defineComponent({
   name: 'DashboardView',
@@ -113,9 +115,13 @@ export default defineComponent({
     // References for DOM elements
     const mealList = ref(null);
     const todaySection = ref(null);
+      // Initialize the meal prep store and scroll to today's meal
+    const mealPrepStore = useMealPrepStore();
     
-    // Scroll to today's meal when component is mounted
     onMounted(() => {
+      // Load sample meal prep data for demonstration
+      mealPrepStore.loadSampleData();
+      
       nextTick(() => {
         if (todaySection.value && todaySection.value[0]) {
           todaySection.value[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -168,8 +174,7 @@ export default defineComponent({
       { name: 'Make turkey meatballs', day: 'Wednesday', completed: false, date: '2025-05-21' },
       { name: 'Prepare pizza dough', day: 'Thursday', completed: false, date: '2025-05-22' }
     ];
-    
-    const reminders = [
+      const reminders = [
       {
         icon: 'mdi-cart',
         color: 'primary',
@@ -191,12 +196,85 @@ export default defineComponent({
         subtitle: 'Prepare meals for next week',
         date: '2025-05-25'
       }
-    ];    return {
+    ];    // Generate calendar meal items from the meal plan
+    const calendarMeals = computed(() => {
+      const mealPrepStore = useMealPrepStore();
+      const meals: { 
+        id?: string; 
+        name: string; 
+        type: string; 
+        date: string;
+        color?: string;
+        portionNumber?: number;
+        isLeftover?: boolean;
+      }[] = [];
+      
+      mealPlan.forEach(day => {
+        const dateObj = new Date();
+        const today = new Date();
+        const dayIndex = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day.day);
+        const todayIndex = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        // Calculate day difference
+        let dayDiff = dayIndex - todayIndex;
+        if (dayDiff < 0) dayDiff += 7; // Wrap to next week if needed
+        
+        // Set the date to the appropriate day
+        dateObj.setDate(today.getDate() + dayDiff);
+        
+        // Format the date as YYYY-MM-DD
+        const formattedDate = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        
+        // Add breakfast, lunch, and dinner as separate items with colors
+        if (day.breakfast) {
+          const mealColor = mealPrepStore.getMealColorByName(day.breakfast);
+          meals.push({
+            id: `breakfast-${formattedDate}`,
+            name: day.breakfast,
+            type: 'breakfast',
+            date: formattedDate,
+            color: mealColor,
+            portionNumber: 2, // For this demo, assume these are leftover portions 
+            isLeftover: true  // Show all meals as leftovers for demonstration
+          });
+        }
+        
+        if (day.lunch) {
+          const mealColor = mealPrepStore.getMealColorByName(day.lunch);
+          meals.push({
+            id: `lunch-${formattedDate}`,
+            name: day.lunch,
+            type: 'lunch',
+            date: formattedDate,
+            color: mealColor,
+            portionNumber: 2, // For this demo, assume these are leftover portions
+            isLeftover: true  // Show all meals as leftovers for demonstration
+          });
+        }
+        
+        if (day.dinner) {
+          const mealColor = mealPrepStore.getMealColorByName(day.dinner);
+          meals.push({
+            id: `dinner-${formattedDate}`,
+            name: day.dinner,
+            type: 'dinner',
+            date: formattedDate,
+            color: mealColor,
+            portionNumber: 2, // For this demo, assume these are leftover portions
+            isLeftover: true  // Show all meals as leftovers for demonstration
+          });
+        }
+      });
+      
+      return meals;
+    });
+      return {
       mealPlan,
       sortedMealPlan,
       macros,
       prepTasks,
       reminders,
+      calendarMeals,
       addNewActivity,
       isToday,
       getFormattedDate,

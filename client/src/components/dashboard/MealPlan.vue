@@ -49,13 +49,16 @@
           >
             Today
           </v-chip>
-        </v-list-subheader>
-        <v-list-item
+        </v-list-subheader>        <v-list-item
           density="comfortable"
           class="meal-item"
         >
           <template #prepend>
             <div class="meal-icon-container">
+              <div 
+                class="meal-color-dot" 
+                :style="{ backgroundColor: getMealColor(day.breakfast) }"
+              />
               <v-icon
                 color="amber-darken-2"
                 size="small"
@@ -71,13 +74,16 @@
             Breakfast
           </v-list-item-subtitle>
         </v-list-item>
-        
         <v-list-item
           density="comfortable"
           class="meal-item"
         >
           <template #prepend>
             <div class="meal-icon-container">
+              <div 
+                class="meal-color-dot" 
+                :style="{ backgroundColor: getMealColor(day.lunch) }"
+              />
               <v-icon
                 color="blue"
                 size="small"
@@ -93,13 +99,16 @@
             Lunch
           </v-list-item-subtitle>
         </v-list-item>
-        
         <v-list-item
           density="comfortable"
           class="meal-item"
         >
           <template #prepend>
             <div class="meal-icon-container">
+              <div 
+                class="meal-color-dot" 
+                :style="{ backgroundColor: getMealColor(day.dinner) }"
+              />
               <v-icon
                 color="deep-purple"
                 size="small"
@@ -132,6 +141,16 @@ interface MealDay {
   breakfast: string;
   lunch: string;
   dinner: string;
+}
+
+interface MealPrepItem {
+  id: string;
+  name: string;
+  color: string;
+  type: string;
+  portions: number;
+  prepDate: string;
+  plannedDates: string[]; // Array of dates when portions will be consumed
 }
 
 export default defineComponent({
@@ -202,14 +221,30 @@ export default defineComponent({
           todaySection.value[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
-    });
+    });    // Generate a consistent color for each meal based on the meal name
+    const getMealColor = (mealName: string) => {
+      if (!mealName) return 'transparent';
+      
+      // Use string hashing to generate a consistent hue value for each meal
+      let hash = 0;
+      for (let i = 0; i < mealName.length; i++) {
+        hash = mealName.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      
+      // Convert hash to a hue value (0-360)
+      const hue = hash % 360;
+      
+      // Return HSL color with fixed saturation and lightness
+      return `hsl(${hue}, 70%, 50%)`;
+    };
 
     return {
       sortedMealPlan,
       isToday,
       getFormattedDate,
       mealList,
-      todaySection
+      todaySection,
+      getMealColor
     };
   }
 });
@@ -230,6 +265,19 @@ export default defineComponent({
   border-radius: 6px;
   background-color: rgba(var(--v-theme-surface-variant), 0.4);
   margin-right: 8px;
+  position: relative;
+}
+
+.meal-color-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .meal-item {
