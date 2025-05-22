@@ -9,7 +9,7 @@
         >
           mdi-calendar
         </v-icon>
-        <span class="text-h6">Tasks</span>
+        <span class="text-h6">Schedule</span>
       </div>
       <div class="d-flex align-center">
         <v-btn

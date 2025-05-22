@@ -23,7 +23,7 @@
           density="compact"
           class="px-2"
         >
-          <span>Left: {{ leftovers }}</span>
+          <span>{{ leftovers }} left</span>
         </v-chip>
         
         <v-icon
