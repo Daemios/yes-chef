@@ -11,19 +11,27 @@
       <!-- Meal name shown outside of chip -->
       <div class="text-caption text-medium-emphasis mb-1">
         {{ mealName }}
-      </div>
-      
-      <!-- Colored chip showing leftover servings if any -->
-      <div class="d-flex align-center">
+      </div>      <!-- Colored chip showing leftover meal day and leftover count outside -->
+      <div 
+        class="d-flex align-center"
+      >
+        <span 
+          v-if="leftovers > 0" 
+          class="text-caption text-medium-emphasis me-1"
+        >
+          {{ leftovers }} left:
+        </span>
+        
         <v-chip
           v-if="leftovers > 0"
           :color="color"
           size="x-small"
           label
+          variant="flat"
           density="compact"
-          class="px-2"
+          class="px-2 solid-chip"
         >
-          <span>{{ leftovers }} left</span>
+          <span>{{ abbreviatedDayName }}</span>
         </v-chip>
         
         <v-icon
@@ -81,6 +89,21 @@ export default defineComponent({
     leftovers: {
       type: Number,
       default: 0
+    }
+  },
+  computed: {
+    abbreviatedDayName(): string {
+      const dayNameMap: Record<string, string> = {
+        'Monday': 'Mon',
+        'Tuesday': 'Tue',
+        'Wednesday': 'Wed',
+        'Thursday': 'Thurs',
+        'Friday': 'Fri',
+        'Saturday': 'Sat',
+        'Sunday': 'Sun'
+      };
+      
+      return dayNameMap[this.dayName] || this.dayName;
     }
   }
 });
