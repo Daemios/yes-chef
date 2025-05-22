@@ -1,229 +1,239 @@
-<template>  <div class="home">
-    <div class="bg-primary py-16 text-center mb-8">
+<template>
+  <div class="min-h-100">
+    <!-- Hero section with enhanced food imagery -->
+    <v-row class="mt-12">
+      <v-col
+        cols="12"
+        md="6"
+        class="d-flex flex-column justify-center"
+      >
+        <h1 class="text-h2 font-weight-bold mb-4">
+          Smart Meal Planning<br>Made <span class="text-accent">Simple</span>
+        </h1>
+        <p class="text-body-1 mb-6">
+          Yes Chef helps you plan your meals, generate shopping lists, and track nutrition - all in one place.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <v-btn
+            to="/subscribe"
+            color="accent"
+            size="large"
+            class="text-none mb-2 mr-2"
+          >
+            <v-icon start>
+              mdi-silverware-fork-knife
+            </v-icon>
+            Start Meal Planning
+          </v-btn>
+          <v-btn
+            to="/features"
+            variant="outlined"
+            size="large"
+            class="text-none mb-2"
+          >
+            <v-icon start>
+              mdi-information-outline
+            </v-icon>
+            Learn More
+          </v-btn>
+        </div>
+      </v-col>
+      
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <!-- Hero food image showcase with enhanced styling -->
+        <div class="food-image-container">
+          <div class="image-frame">
+            <img 
+              src="@/assets/images/healthy-food-bowl.jpg" 
+              alt="Fresh healthy food bowl"
+              class="food-showcase-image"
+              style="width: 100%; height: 100%; object-fit: cover;"
+            >
+          </div>
+        </div>
+      </v-col>
+    </v-row>    <div
+      class="py-16 my-8 bg-dark"
+      style="background-color: rgba(30, 41, 59, 0.5); border-top: 1px solid rgba(148, 163, 184, 0.1); border-bottom: 1px solid rgba(148, 163, 184, 0.1);"
+    >
       <v-container>
-        <v-row justify="center">
-          <v-col cols="12" md="8" lg="6">
-            <h1 class="text-h2 font-weight-bold text-white mb-4">Welcome to Yes Chef</h1>
-            <p class="text-h6 text-white mb-6">Your personal recipe collection</p>
+        <v-row>
+          <v-col
+            cols="12"
+            class="text-center mb-12"
+          >
+            <span class="text-overline text-accent font-weight-bold">SIMPLE PROCESS</span>
+            <h2 class="text-h3 font-weight-bold mt-2 mb-3">
+              How It Works
+            </h2>
+            <p
+              class="text-subtitle-1 mx-auto"
+              style="max-width: 600px"
+            >
+              Three simple steps to transform your meal planning routine
+            </p>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-6">
+          <v-col
+            v-for="(step, index) in steps"
+            :key="index"
+            cols="12"
+            md="4"
+            class="px-3"
+          >
+            <v-hover v-slot="{ isHovering, props }">
+              <v-card
+                v-bind="props"
+                :elevation="isHovering ? 4 : 1"
+                :class="['step-card', isHovering ? 'border border-accent' : '']"
+                rounded="lg"
+              >
+                <div class="d-flex align-center mb-5">
+                  <v-avatar 
+                    color="accent" 
+                    size="50"
+                    class="mr-4"
+                  >
+                    <span class="text-h6 font-weight-bold">{{ index + 1 }}</span>
+                  </v-avatar>
+                  <h3 class="text-h5 font-weight-bold step-title">
+                    {{ step.title }}
+                  </h3>
+                </div>
+                
+                <p class="text-body-1 step-description">
+                  {{ step.description }}
+                </p>
+                
+                <div class="text-center step-icon-container">
+                  <v-icon
+                    :icon="step.icon"
+                    size="64"
+                    color="accent"
+                    class="opacity-75"
+                  />
+                </div>
+              </v-card>
+            </v-hover>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-12">
+          <v-col
+            cols="12"
+            class="text-center"
+          >
             <v-btn
+              to="/subscribe"
               color="accent"
               size="large"
-              class="text-white"
-              elevation="3"
-              @click="createNewRecipe"
+              class="px-6"
             >
-              <v-icon icon="mdi-plus" class="mr-2"></v-icon>
-              Add New Recipe
+              Get Started Today
+              <v-icon end>
+                mdi-arrow-right
+              </v-icon>
             </v-btn>
           </v-col>
         </v-row>
       </v-container>
     </div>
-
-    <!-- API Test Section -->
-    <v-card class="mx-auto my-6 pa-4" max-width="600" elevation="3" rounded="lg">
-      <v-card-title class="text-h5 font-weight-bold">
-        <v-icon icon="mdi-api" color="primary" class="mr-2"></v-icon>
-        API Connection
-      </v-card-title>
-      <v-card-text>
-        <p>This is a Vue.js application with Node/Express backend using TypeScript.</p>
-        <v-btn
-          color="primary"
-          class="mt-4"
-          variant="elevated"
-          @click="fetchMessage"
-          :loading="apiLoading"
-          :disabled="apiLoading"
-        >
-          <v-icon icon="mdi-connection" class="mr-2"></v-icon>
-          Test API Connection
-        </v-btn>
-        <v-alert
-          v-if="apiMessage"
-          density="comfortable"
-          type="success"
-          variant="tonal"
-          class="mt-4"
-        >
-          {{ apiMessage }}
-        </v-alert>
-        <v-alert
-          v-if="apiError"
-          density="comfortable"
-          type="error"
-          variant="tonal"
-          class="mt-4"
-        >
-          {{ apiError }}
-        </v-alert>
-      </v-card-text>
-    </v-card>
-
-    <!-- Recipe List Section -->
-    <v-card class="mx-auto my-6 pa-4" max-width="800" elevation="3" rounded="lg">
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="mdi-book-open-variant" color="primary" size="large" class="mr-3"></v-icon>
-        <span class="text-h4 font-weight-bold">Recipes</span>
-        <v-spacer></v-spacer>
-        <v-btn 
-          color="accent" 
-          variant="elevated" 
-          class="text-white"
-          prepend-icon="mdi-plus" 
-          @click="createNewRecipe"
-        >
-          Add Recipe        </v-btn>
-      </v-card-title>
-      
-      <v-divider class="mx-auto my-4 border-opacity-50" style="width: 30%; border-width: 2px;" color="primary"></v-divider>
-      
-      <v-card-text>
-        <v-btn
-          color="info"
-          variant="outlined"
-          class="mb-6"
-          @click="loadRecipes"
-          :loading="recipeStore.loading"
-          :disabled="recipeStore.loading"
-        >
-          <v-icon icon="mdi-refresh" class="mr-2"></v-icon>
-          Refresh Recipes
-        </v-btn>
-
-        <v-alert
-          v-if="recipeStore.error"
-          type="error"
-          variant="tonal"
-          class="mb-4"
-        >
-          {{ recipeStore.error }}
-        </v-alert>
-
-        <v-list v-if="recipeStore.recipes.length > 0" class="bg-light-cream">
-          <v-list-item
-            v-for="recipe in recipeStore.getSortedRecipes"
-            :key="recipe.id"
-            :title="recipe.title"
-            :subtitle="recipe.description || 'No description'"
-            class="recipe-card mb-2"
-            rounded="lg"
-            elevation="1"
-            variant="elevated"
-            active-color="primary"
-          >
-            <template v-slot:prepend>
-              <v-avatar color="primary" class="text-white">
-                {{ recipe.title.charAt(0).toUpperCase() }}
-              </v-avatar>
-            </template>
-            
-            <template v-slot:append>
-              <v-btn 
-                icon="mdi-eye" 
-                variant="text" 
-                color="primary" 
-                @click="viewRecipe(recipe.id)"
-              ></v-btn>
-            </template>
-          </v-list-item>
-        </v-list>
-        
-        <v-card 
-          v-else-if="!recipeStore.loading" 
-          class="pa-6 text-center bg-light-cream"
-          variant="outlined"
-          rounded="lg"
-        >
-          <v-icon icon="mdi-food-off" size="64" color="text-light" class="mb-4"></v-icon>
-          <p class="text-h6 mb-4">No recipes found.</p>
-          <p class="mb-4">Time to add your first culinary creation!</p>
-          <v-btn 
-            color="accent" 
-            variant="elevated" 
-            class="text-white"
-            prepend-icon="mdi-plus" 
-            @click="createNewRecipe"
-          >
-            Create First Recipe
-          </v-btn>
-        </v-card>
-      </v-card-text>
-    </v-card>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { fetchHelloMessage } from '../services/api.service';
-import { useRecipeStore } from '../stores/recipe.store';
+import { defineComponent } from 'vue';
+import '@/assets/styles/step-cards.css';
 
 export default defineComponent({
   name: 'HomeView',
-  setup() {
-    const router = useRouter();
-    const recipeStore = useRecipeStore();
-    
-    // API test state
-    const apiMessage = ref('');
-    const apiError = ref('');
-    const apiLoading = ref(false);
-
-    // Load recipes on component mount
-    onMounted(async () => {
-      await loadRecipes();
-    });
-
-    const fetchMessage = async () => {
-      apiLoading.value = true;
-      apiError.value = '';
-      try {
-        const data = await fetchHelloMessage();
-        apiMessage.value = data.message;
-      } catch (err) {
-        apiError.value = 'Failed to connect to API';
-        console.error('API Error:', err);
-      } finally {
-        apiLoading.value = false;
-      }
-    };
-
-    const loadRecipes = async () => {
-      try {
-        await recipeStore.fetchAllRecipes();
-      } catch (err) {
-        console.error('Error loading recipes:', err);
-      }
-    };
-
-    const viewRecipe = (id: number) => {
-      router.push(`/recipes/${id}`);
-    };
-
-    const createNewRecipe = () => {
-      router.push('/recipes/new');
-    };
-
+  data() {
     return {
-      // API test
-      apiMessage,
-      apiError,
-      apiLoading,
-      fetchMessage,
-      
-      // Recipe functionality
-      recipeStore,
-      loadRecipes,
-      viewRecipe,
-      createNewRecipe
+      steps: [
+        {
+          title: 'Plan Your Meals',
+          description: 'Easily select recipes from our curated database or add your own favorites to create personalized weekly meal plans in minutes.',
+          icon: 'mdi-calendar-text'
+        },
+        {
+          title: 'Generate Shopping Lists',
+          description: 'Our smart system automatically combines ingredients from all your planned meals into organized shopping lists, saving you time and reducing waste.',
+          icon: 'mdi-cart-outline'
+        },
+        {
+          title: 'Track Nutrition',
+          description: 'Monitor your nutritional intake with detailed breakdowns and visualizations to help you maintain a balanced, healthy diet effortlessly.',
+          icon: 'mdi-chart-bar'
+        }
+      ]
     };
   }
 });
 </script>
 
 <style scoped>
-.home {
-  min-height: 100%;
+.food-image-container {
+  position: relative;
+  margin-top: -30px;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-frame {
+  position: relative;
+  border-radius: 50%;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  transform: rotate(-3deg);
+  border: 2px solid rgba(var(--v-theme-accent), 0.3);
+}
+
+.image-frame:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+
+.food-showcase-image {
+  border-radius: 50%;
+  border: 4px solid white;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
+}
+
+/* Add accent glow effect */
+.image-frame::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  bottom: -10px;
+  left: -10px;
+  background: radial-gradient(circle at center, rgba(var(--v-theme-accent), 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.7;
+}
+
+@media (max-width: 960px) {
+  .food-image-container {
+    margin-top: 30px;
+  }
+  
+  .image-frame {
+    transform: rotate(-2deg);
+    padding: 5px;
+  }
 }
 </style>

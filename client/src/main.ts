@@ -1,51 +1,27 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import pinia from './stores';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
-import 'vuetify/styles';
-import { aliases, mdi } from 'vuetify/iconsets/mdi';
-import '@mdi/font/css/materialdesignicons.css';
+import { createPinia } from 'pinia';
+import vuetify from './plugins/vuetify';
+import { useThemeStore } from './stores/theme';
 
-const vuetify = createVuetify({
-  components,
-  directives,
-  icons: {
-    defaultSet: 'mdi',
-    aliases,
-    sets: {
-      mdi,
-    },
-  },
-  theme: {
-    defaultTheme: 'yesChefTheme',
-    themes: {
-      yesChefTheme: {
-        dark: false,
-        colors: {
-          primary: '#8E2442', // Rich burgundy/wine color
-          secondary: '#606C38', // Warm olive green
-          accent: '#FF6B35', // Warm orange
-          error: '#FF3B30', // Bright red
-          warning: '#FFCC00', // Golden yellow
-          info: '#3A86FF', // Clear blue
-          success: '#28A745', // Emerald green
-          background: '#FFFDF6', // Light cream
-          surface: '#FFFFFF', // Pure white
-          'on-background': '#333333', // Dark gray text on background
-          'on-surface': '#333333', // Dark gray text on surface
-        },
-      },
-    },
-  },
-});
+console.log('Initializing app with theme:', vuetify.theme);
 
+// Initialize app
 const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
+
+// Add console log to verify app initialization
+console.log('Vue app initializing...');
+
+// Initialize theme from saved preferences
+const themeStore = useThemeStore();
+themeStore.initTheme();
 
 app.use(router);
 app.use(vuetify);
-app.use(pinia);
 
+// Add another console log to verify app mounting
+console.log('Mounting Vue app to #app element');
 app.mount('#app');
