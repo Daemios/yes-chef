@@ -28,18 +28,15 @@
           <v-icon>mdi-chevron-right</v-icon>
         </v-btn>
       </div>
-    </v-card-title>    <v-divider />    <!-- Calendar -->
+    </v-card-title>
+    
+    <v-divider />
+    
+    <!-- Calendar -->
     <div class="calendar-container pa-3">
-      <!-- Legend for task and reminder indicators only -->
-      <div class="meal-type-legend d-flex justify-center mb-3 flex-wrap">
+      <!-- Legend for leftover meals only -->
+      <div class="meal-type-legend d-flex justify-center mb-3">
         <div class="d-flex align-center mx-2 my-1">
-          <div class="legend-dot task-dot mr-1" />
-          <span class="text-caption">Prep Tasks</span>
-        </div>
-        <div class="d-flex align-center mx-2 my-1">
-          <div class="legend-dot reminder-dot mr-1" />
-          <span class="text-caption">Reminders</span>
-        </div>        <div class="d-flex align-center mx-2 my-1">
           <div 
             class="legend-dot mr-1" 
             style="background-color: var(--v-theme-accent);"
@@ -48,8 +45,7 @@
         </div>
       </div>
       
-      <!-- Weekday Headers -->
-      <div class="calendar-grid">
+      <!-- Weekday Headers -->      <div class="calendar-grid">
         <div
           v-for="day in weekdays"
           :key="day"
@@ -77,21 +73,13 @@
         >
           <div class="day-content">
             <span class="day-number">{{ day }}</span>            <div class="indicator-container">
+              <!-- Show meal dots with their own colors -->
               <div
-                v-if="hasTasksOnDay(day)"
-                class="item-dot task-dot"
-              />
-              <div
-                v-if="hasRemindersOnDay(day)"
-                class="item-dot reminder-dot"
-              />
-              <!-- Show leftover meal dots with their own colors -->
-              <div
-                v-for="meal in getLeftoverMealsForDay(day)"
+                v-for="meal in getMealsForDay(day)"
                 :key="meal.id + '-' + day" 
                 class="item-dot"
                 :style="{ backgroundColor: meal.color }"
-                :title="meal.name + ' (portion ' + meal.portionNumber + ')'"
+                :title="meal.name"
               />
             </div>
           </div>
@@ -107,8 +95,7 @@
       <v-card v-if="selectedDay">
         <v-card-title class="pb-1">
           {{ monthNames[currentMonth] }} {{ selectedDay }}, {{ currentYear }}
-        </v-card-title>
-        <v-card-text class="pb-2 pt-2">
+        </v-card-title>        <v-card-text class="pb-2 pt-2">
           <!-- Meal section -->
           <template v-if="getMealsForDay(selectedDay).length > 0">
             <div class="font-weight-medium mb-2">
@@ -119,13 +106,10 @@
               :key="'meal-'+idx" 
               class="d-flex align-center mb-2"
             >
-              <v-icon
-                :color="getMealTypeColor(meal.type)"
-                size="small"
-                class="mr-2"
-              >
-                {{ getMealTypeIcon(meal.type) }}
-              </v-icon>
+              <div 
+                class="meal-color-dot mr-2" 
+                :style="{ backgroundColor: meal.color }"
+              />
               <div>
                 <div>{{ meal.name }}</div>
                 <div class="text-caption text-capitalize">
@@ -135,60 +119,11 @@
             </div>
           </template>
           
-          <!-- Tasks section -->
-          <template v-if="getTasksForDay(selectedDay).length > 0">
-            <div class="font-weight-medium mb-2 mt-3">
-              Prep Tasks
-            </div>
-            <div 
-              v-for="(task, idx) in getTasksForDay(selectedDay)" 
-              :key="'task-'+idx" 
-              class="d-flex align-center mb-2"
-            >
-              <v-checkbox
-                v-model="task.completed"
-                hide-details
-                density="compact"
-                color="success"
-              />
-              <span
-                :class="{ 'text-decoration-line-through': task.completed }"
-                class="ml-2"
-              >
-                {{ task.name }}
-              </span>
-            </div>
-          </template>
-          
-          <!-- Reminders section -->
-          <template v-if="getRemindersForDay(selectedDay).length > 0">
-            <div class="font-weight-medium mt-3 mb-2">
-              Kitchen Reminders
-            </div>
-            <div 
-              v-for="(reminder, idx) in getRemindersForDay(selectedDay)" 
-              :key="'rem-'+idx" 
-              class="d-flex align-center mb-2"
-            >
-              <v-icon
-                :color="reminder.color"
-                size="small"
-                class="mr-2"
-              >
-                {{ reminder.icon }}
-              </v-icon>
-              <div>
-                <div>{{ reminder.title }}</div>
-                <div class="text-caption">
-                  {{ reminder.subtitle }}
-                </div>
-              </div>
-            </div>
-          </template>            <div
-            v-if="!hasAnyItemOnDay(selectedDay)"
+          <div
+            v-if="getMealsForDay(selectedDay).length === 0"
             class="text-center text-subtitle-2 py-3 text-medium-emphasis"
           >
-            No meal or prep activities for this day
+            No meals scheduled for this day
           </div>
         </v-card-text>
         <v-card-actions>
@@ -202,80 +137,62 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
-    <v-divider />      <div class="today-tasks pa-3">
+    </v-dialog>    <v-divider />    <div class="today-tasks pa-3">
       <div class="mb-3">
-        <span class="text-subtitle-1 font-weight-medium">Today's Food Prep</span>
+        <div class="d-flex align-center">
+          <v-icon
+            color="warning"
+            class="mr-2"
+          >
+            mdi-chef-hat
+          </v-icon>
+          <span class="text-subtitle-1 font-weight-medium">Today's Prep</span>
+        </div>
       </div>
-      
-      <template v-if="getTodaysTasks().length > 0 || getTodaysReminders().length > 0 || getTodaysMeals().length > 0">
-        <!-- Today's meals -->
+      <template v-if="getTodaysPrep.length > 0">
+        <!-- Today's prep meals -->
         <div
-          v-for="(meal, idx) in getTodaysMeals()"
-          :key="'meal-'+idx"
-          class="d-flex align-center mb-2"
+          v-for="(meal, idx) in getTodaysPrep"
+          :key="'prep-'+idx"
+          class="meal-item mb-3"
         >
-          <v-icon
-            :color="getMealTypeColor(meal.type)"
-            size="small"
-            class="mr-2"
+          <v-card
+            variant="flat"
+            class="meal-calendar-card"
+            :style="{
+              borderTop: `4px solid ${meal.color}`,
+              backgroundColor: 'transparent'
+            }"
           >
-            {{ getMealTypeIcon(meal.type) }}
-          </v-icon>
-          <div>
-            <div>{{ meal.name }}</div>
-            <div class="text-caption text-capitalize">
-              {{ meal.type }}
+            <div class="meal-card-content py-3">
+              <div class="d-flex align-center">
+                <v-icon 
+                  size="small" 
+                  icon="mdi-chef-hat"
+                  color="primary"
+                  class="mr-2"
+                />
+                <div class="meal-name">
+                  {{ meal.name }}
+                </div>
+              </div>
+              <div class="text-caption text-capitalize d-flex align-center mt-1">
+                <v-icon 
+                  size="x-small" 
+                  :icon="getMealTypeIcon(meal.type)" 
+                  class="mr-1"
+                />
+                Prep for tomorrow's {{ meal.type }}
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Today's tasks -->
-        <div
-          v-for="(task, idx) in getTodaysTasks()"
-          :key="'task-'+idx"
-          class="d-flex align-center mb-2"
-        >
-          <v-checkbox
-            v-model="task.completed"
-            hide-details
-            density="compact"
-            color="success"
-          />
-          <span
-            :class="{ 'text-decoration-line-through': task.completed }"
-            class="ml-2"
-          >
-            {{ task.name }}
-          </span>
-        </div>
-        
-        <!-- Today's reminders -->
-        <div
-          v-for="(reminder, idx) in getTodaysReminders()"
-          :key="'rem-'+idx"
-          class="d-flex align-center mb-2 mt-1"
-        >
-          <v-icon
-            :color="reminder.color"
-            size="small"
-            class="mr-2"
-          >
-            {{ reminder.icon }}
-          </v-icon>
-          <div>
-            <div>{{ reminder.title }}</div>
-            <div class="text-caption">
-              {{ reminder.subtitle }}
-            </div>
-          </div>
+          </v-card>
         </div>
       </template>
       <div
         v-else
         class="text-center text-subtitle-2 py-2 text-medium-emphasis"
       >
-        No food prep tasks scheduled for today
+        No meals to prep today
       </div>
     </div>
   </v-card>
@@ -283,6 +200,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, PropType } from 'vue';
+import { useMealPrepStore } from '@/stores/meal-prep.store';
+import { MealPrep, CalendarMeal } from '@/types/meal-prep';
 
 interface Task {
   name: string;
@@ -307,6 +226,8 @@ interface Meal {
   color?: string;
   portionNumber?: number;
   isLeftover?: boolean;
+  needsPrep?: boolean;
+  isPrepared?: boolean;
 }
 
 export default defineComponent({
@@ -413,13 +334,11 @@ export default defineComponent({
       return props.mealPlanItems.filter(meal => 
         meal.date === dateStr && meal.isLeftover === true
       );
+    };    const hasItemsOnDay = (day: number) => {
+      return hasLeftoverMealsOnDay(day);
     };
-      const hasItemsOnDay = (day: number) => {
-      return hasTasksOnDay(day) || hasRemindersOnDay(day) || hasLeftoverMealsOnDay(day);
-    };
-    
-    const hasAnyItemOnDay = (day: number) => {
-      return hasTasksOnDay(day) || hasRemindersOnDay(day) || hasMealsOnDay(day);
+      const hasAnyItemOnDay = (day: number) => {
+      return hasMealsOnDay(day);
     };
     
     const getTasksForDay = (day: number) => {
@@ -444,8 +363,7 @@ export default defineComponent({
         currentMonth.value === now.getMonth() && 
         currentYear.value === now.getFullYear()
       );
-    };
-      // Functions to get today's tasks and reminders
+    };    // Functions to get today's tasks and reminders
     const getTodaysTasks = () => {
       const today = new Date();
       const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -457,11 +375,34 @@ export default defineComponent({
       const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       return props.reminders.filter(reminder => reminder.date === dateStr);
     };
-      const getTodaysMeals = () => {
+    
+    const getTodaysMeals = () => {
       const today = new Date();
       const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       return props.mealPlanItems.filter(meal => meal.date === dateStr);
     };
+    
+    // Get meals that need prep today from the meal prep store
+    const mealPrepStore = useMealPrepStore();
+    
+    // Function to get meals that need prep today
+    const getTodaysPrep = computed(() => {
+      // Get meals directly from the meal prep store that need preparation today
+      const todaysPrepMeals = mealPrepStore.getTodaysPrep();
+      
+      // Format them for display
+      return todaysPrepMeals.map(meal => ({
+        id: meal.id,
+        name: meal.name,
+        type: meal.mealType || 'meal',
+        date: meal.prepDate,
+        color: meal.color,
+        portionNumber: meal.totalPortions,
+        needsPrep: true,
+        isPrepared: false,
+        prepMode: meal.prepMode
+      }));
+    });
     
     // Helper functions for meal type styling
     const getMealTypeIcon = (type: string) => {
@@ -480,12 +421,12 @@ export default defineComponent({
         case 'dinner': return 'deep-purple';
         default: return 'grey';
       }
-    };
+    };    // Check if there are any meals to prep today
+    const hasPrepsToday = computed(() => {
+      return getTodaysPrep.value.length > 0;
+    });
     
-    // Check if there are any tasks or reminders for today
-    const hasTodaysActivities = computed(() => {
-      return getTodaysTasks().length > 0 || getTodaysReminders().length > 0 || getTodaysMeals().length > 0;
-    });    return {
+    return {
       weekdays,
       monthNames,
       currentMonth,
@@ -511,11 +452,12 @@ export default defineComponent({
       showDayDetails,
       selectedDay,
       openDayDetails,
-      activeTab,
-      getTodaysTasks,
+      activeTab,      getTodaysTasks,
       getTodaysReminders,
       getTodaysMeals,
-      hasTodaysActivities
+      getTodaysPrep,
+      hasPrepsToday,
+      mealPrepStore
     };
   }
 });
@@ -639,5 +581,24 @@ export default defineComponent({
   margin-right: 4px;
   position: relative;
   top: 2px;
+}
+
+/* Matching color dot style with MealPlan component */
+.meal-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Meal calendar card styling */
+.meal-calendar-card {
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.meal-calendar-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

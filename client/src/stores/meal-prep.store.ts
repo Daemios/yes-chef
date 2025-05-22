@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { MealPrep, PortionDate } from '@/types/meal-prep';
+import { MealPrep, PortionDate, MealPrepMode } from '@/types/meal-prep';
 import { generateRandomColor } from '@/services/color.service';
 
 export const useMealPrepStore = defineStore('mealPrep', () => {
   const mealPreps = ref<MealPrep[]>([]);
   const mealColors = ref<Record<string, string>>({});
+  const currentPrepMode = ref<MealPrepMode>(MealPrepMode.BALANCED); // Default to balanced mode
 
   // Get all meal preps
   const getAllMealPreps = computed(() => mealPreps.value);
@@ -96,8 +97,7 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     portion.consumed = true;
     return true;
   }
-  
-  // Get color for a specific meal by name
+    // Get color for a specific meal by name
   function getMealColorByName(mealName: string) {
     if (mealColors.value[mealName]) {
       return mealColors.value[mealName];
@@ -108,6 +108,25 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     mealColors.value[mealName] = color;
     return color;
   }
+  
+  // Get meals that need to be prepped today
+  function getTodaysPrep() {
+    const today = new Date().toISOString().split('T')[0];
+    return mealPreps.value.filter(meal => 
+      meal.prepDate === today && 
+      (meal.needsPrep === undefined || meal.needsPrep === true) &&
+      (meal.isPrepared === undefined || meal.isPrepared === false)
+    );
+  }
+  
+  // Set the meal prep mode
+  function setPrepMode(mode: MealPrepMode) {
+    currentPrepMode.value = mode;
+    // Here we could adjust existing meals or apply settings based on the mode
+  }
+  
+  // Get the current prep mode
+  const getPrepMode = computed(() => currentPrepMode.value);
   
   // Delete a meal prep
   function deleteMealPrep(mealId: string) {
@@ -138,21 +157,26 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     
     const dayAfterTomorrow = new Date(today);
     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    
-    addMealPrep({
+      addMealPrep({
       name: 'Garlic Chicken',
       mealType: 'dinner',
       totalPortions: 3,
       prepDate: formatDate(today),
-      ingredients: ['chicken', 'garlic', 'olive oil', 'herbs']
+      ingredients: ['chicken', 'garlic', 'olive oil', 'herbs'],
+      needsPrep: true,
+      isPrepared: false,
+      prepMode: MealPrepMode.BALANCED
     });
     
     addMealPrep({
       name: 'Quinoa Salad',
       mealType: 'lunch',
       totalPortions: 4,
-      prepDate: formatDate(today),
-      ingredients: ['quinoa', 'tomatoes', 'cucumber', 'feta cheese']
+      prepDate: formatDate(tomorrow),
+      ingredients: ['quinoa', 'tomatoes', 'cucumber', 'feta cheese'],
+      needsPrep: true,
+      isPrepared: false,
+      prepMode: MealPrepMode.BALANCED
     });
     
     addMealPrep({
@@ -160,13 +184,28 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
       mealType: 'breakfast',
       totalPortions: 3,
       prepDate: formatDate(today),
-      ingredients: ['oats', 'milk', 'honey', 'berries']
+      ingredients: ['oats', 'milk', 'honey', 'berries'],
+      needsPrep: false,  // This meal is already prepped
+      isPrepared: true,
+      prepMode: MealPrepMode.LIGHT
+    });
+    
+    // Add a heavy prep meal example
+    addMealPrep({
+      name: 'Batch Chili',
+      mealType: 'dinner',
+      totalPortions: 7,
+      prepDate: formatDate(today),
+      ingredients: ['ground beef', 'beans', 'tomatoes', 'onions', 'peppers', 'spices'],
+      needsPrep: true,
+      isPrepared: false,
+      prepMode: MealPrepMode.HEAVY
     });
   }
-  
-  return {
+    return {
     mealPreps,
     mealColors,
+    currentPrepMode,
     getAllMealPreps,
     getUpcomingLeftovers,
     addMealPrep,
@@ -174,6 +213,9 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     getMealColorByName,
     deleteMealPrep,
     clearAllMealPreps,
-    loadSampleData
+    loadSampleData,
+    getTodaysPrep,
+    setPrepMode,
+    getPrepMode
   };
 });

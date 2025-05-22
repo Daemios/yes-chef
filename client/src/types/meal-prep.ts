@@ -3,6 +3,15 @@
  */
 
 /**
+ * Meal prep planning modes
+ */
+export enum MealPrepMode {
+  HEAVY = 'heavy',  // 3 meals × 7 servings
+  BALANCED = 'balanced', // 5 meals × 4-5 servings
+  LIGHT = 'light' // 7-10 meals × 2-3 servings
+}
+
+/**
  * Represents a meal prep entry with portions information
  */
 export interface MealPrep {
@@ -15,6 +24,9 @@ export interface MealPrep {
   // Additional meal info can be added as needed
   mealType?: 'breakfast' | 'lunch' | 'dinner';
   ingredients?: string[];
+  needsPrep?: boolean; // Whether this meal needs preparation today
+  isPrepared?: boolean; // Whether this meal has already been prepared
+  prepMode?: MealPrepMode; // The meal prep mode this meal belongs to
   nutritionInfo?: {
     calories: number;
     protein: number;
@@ -43,6 +55,9 @@ export interface CalendarMeal {
   color: string; // Color for this meal
   portionNumber: number; // Which portion this is (1, 2, 3...)
   isLeftover: boolean; // True for portions after the first one (portion > 1)
+  needsPrep: boolean; // Whether this meal needs to be prepared today
+  isPrepared: boolean; // Whether this meal has already been prepared
+  prepMode?: MealPrepMode; // The meal prep mode this belongs to
 }
 
 /**
