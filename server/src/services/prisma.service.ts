@@ -2,7 +2,7 @@
  * Prisma Service
  * Singleton instance of the Prisma client
  */
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 // Define a global variable to store the prisma instance
 declare global {

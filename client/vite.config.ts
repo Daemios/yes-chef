@@ -11,8 +11,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@shared': fileURLToPath(new URL('../shared', import.meta.url))
     }
-  },
-  server: {
+  },  server: {
     port: 5173,
     // Add host: true to expose to network
     host: true,
@@ -20,6 +19,18 @@ export default defineConfig({
     open: false,
     hmr: {
       overlay: true
+    },    // Proxy API requests to the backend server
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3003',
+        changeOrigin: true,
+        secure: false
+      },
+      '/auth': {
+        target: 'http://localhost:3003',
+        changeOrigin: true,
+        secure: false
+      }
     }
   }
 });

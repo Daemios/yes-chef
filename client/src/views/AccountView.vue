@@ -4,13 +4,15 @@
     
     <v-row>
       <v-col cols="12" md="4">
-        <v-card class="mb-6">
-          <v-card-item class="text-center pa-6">
+        <v-card class="mb-6">          <v-card-item class="text-center pa-6">
             <v-avatar size="120" class="mb-4">
-              <v-img :src="authStore.user.avatar" alt="Profile"></v-img>
+              <v-img 
+                :src="authStore.user?.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(authStore.user.name)}&background=4caf50&color=fff` : 'https://ui-avatars.com/api/?name=User&background=4caf50&color=fff'" 
+                alt="Profile"
+              />
             </v-avatar>
             <v-card-title class="text-h5 font-weight-bold mb-1">{{ authStore.fullName }}</v-card-title>
-            <v-card-subtitle>{{ authStore.user.role }} Member</v-card-subtitle>
+            <v-card-subtitle>Premium Member</v-card-subtitle>
             <v-chip color="success" class="mt-2">Active Subscription</v-chip>
           </v-card-item>
           
@@ -39,8 +41,7 @@
           <v-list>
             <v-list-item value="help" to="/support" prepend-icon="mdi-help-circle">
               <v-list-item-title>Help & Support</v-list-item-title>
-            </v-list-item>
-            <v-list-item value="logout" prepend-icon="mdi-logout" @click="authStore.toggleAuth">
+            </v-list-item>            <v-list-item value="logout" prepend-icon="mdi-logout" @click="handleLogout">
               <v-list-item-title>Logout</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -51,21 +52,19 @@
             <v-icon start color="primary">mdi-information</v-icon>
             Account Info
           </v-card-title>
-          <v-divider></v-divider>
-          <v-list density="compact">
+          <v-divider></v-divider>          <v-list density="compact">
             <v-list-item>
               <v-list-item-title>Member Since</v-list-item-title>
-              <template v-slot:append>{{ authStore.user.memberSince }}</template>
+              <template v-slot:append>{{ authStore.user?.createdAt ? new Date(authStore.user.createdAt).toLocaleDateString() : 'N/A' }}</template>
             </v-list-item>
             <v-list-item>
               <v-list-item-title>Plan</v-list-item-title>
               <template v-slot:append>
-                <v-chip color="primary" size="small">{{ authStore.user.plan }}</v-chip>
+                <v-chip color="primary" size="small">Premium</v-chip>
               </template>
-            </v-list-item>
-            <v-list-item>
+            </v-list-item>            <v-list-item>
               <v-list-item-title>Next Billing</v-list-item-title>
-              <template v-slot:append>{{ authStore.user.nextBilling }}</template>
+              <template v-slot:append>June 25, 2025</template>
             </v-list-item>
             <v-list-item>
               <v-list-item-title>Meal Plans Created</v-list-item-title>
@@ -172,10 +171,16 @@ export default defineComponent({
     const router = useRouter();
     const authStore = useAuthStore();
     
+    // Extract first and last name from the user's name field
+    const userName = authStore.user?.name || '';
+    const nameParts = userName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
     const profile = ref({
-      firstName: authStore.user.firstName,
-      lastName: authStore.user.lastName,
-      email: authStore.user.email,
+      firstName: firstName,
+      lastName: lastName,
+      email: authStore.user?.email || '',
       phone: '(555) 123-4567',
       timezone: 'America/New_York',
       bio: 'I love exploring new recipes and cooking for my family. Passionate about healthy eating and meal prepping!'
@@ -192,15 +197,15 @@ export default defineComponent({
       'Australia/Sydney'
     ];
     
-    const logout = () => {
+    const handleLogout = async () => {
       authStore.logout();
-      router.push('/');
+      await router.push('/');
     };
     
     return {
       profile,
       timezones,
-      logout,
+      handleLogout,
       authStore
     };
   }

@@ -53,7 +53,7 @@
             <v-divider></v-divider>
             <v-list-item prepend-icon="mdi-help-circle" title="Help & Support" to="/support"></v-list-item>
             <v-divider></v-divider>
-            <v-list-item prepend-icon="mdi-logout" title="Logout" @click="authStore.toggleAuth"></v-list-item>
+            <v-list-item prepend-icon="mdi-logout" title="Logout" @click="handleLogout"></v-list-item>
           </v-list>
         </v-menu>
       </template>
@@ -73,8 +73,7 @@
         </v-tabs>
         
         <v-divider vertical class="mx-4"></v-divider>
-        
-        <v-btn @click="authStore.toggleAuth" variant="text" class="text-white font-weight-medium mr-2">
+          <v-btn to="/login" variant="text" class="text-white font-weight-medium mr-2">
           <v-icon start>mdi-login</v-icon> Login
         </v-btn>
         
@@ -97,12 +96,11 @@
     location="right"
     temporary
     width="280"
-  >
-    <v-list>
+  >    <v-list>
       <v-list-item
-        :prepend-avatar="authStore.isAuthenticated ? authStore.user.avatar : undefined"
+        :prepend-avatar="authStore.isAuthenticated && authStore.user?.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(authStore.user.name)}&background=4caf50&color=fff` : undefined"
         :title="authStore.isAuthenticated ? authStore.fullName : 'Menu'"
-        :subtitle="authStore.isAuthenticated ? authStore.user.role : ''"
+        :subtitle="authStore.isAuthenticated && authStore.user?.email ? authStore.user.email : ''"
       ></v-list-item>
     </v-list>
     
@@ -127,7 +125,7 @@
       <v-list density="compact" nav>
         <v-list-item title="Settings" prepend-icon="mdi-cog" to="/settings"></v-list-item>
         <v-list-item title="Help & Support" prepend-icon="mdi-help-circle" to="/support"></v-list-item>
-        <v-list-item title="Logout" prepend-icon="mdi-logout" @click="authStore.toggleAuth"></v-list-item>
+        <v-list-item title="Logout" prepend-icon="mdi-logout" @click="handleLogout"></v-list-item>
       </v-list>
     </template>
     
@@ -143,8 +141,7 @@
       
       <v-divider></v-divider>
       
-      <div class="pa-4">
-        <v-btn @click="authStore.toggleAuth" block class="mb-3" variant="outlined" color="primary">
+      <div class="pa-4">        <v-btn to="/login" block class="mb-3" variant="outlined" color="primary">
           <v-icon start>mdi-login</v-icon> Login
         </v-btn>
         <v-btn to="/subscribe" block color="accent">
@@ -240,12 +237,14 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useThemeStore } from '../stores/theme';
 
 export default defineComponent({
   name: 'AppBar',
   setup() {
+    const router = useRouter();
     const drawer = ref(false);
     const activeTab = ref(null);
     const publicTab = ref(null);
@@ -253,13 +252,21 @@ export default defineComponent({
     const themeStore = useThemeStore();
     const showNotificationPanel = ref(false);
     
+    const handleLogout = async () => {
+      authStore.logout();
+      drawer.value = false; // Close mobile drawer
+      showNotificationPanel.value = false; // Close notification panel
+      await router.push('/'); // Redirect to home page
+    };
+    
     return {
       drawer,
       activeTab,
       publicTab,
       authStore,
       themeStore,
-      showNotificationPanel
+      showNotificationPanel,
+      handleLogout
     };
   }
 });
