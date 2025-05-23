@@ -1,97 +1,16 @@
 /**
  * Recipe Repository
- * Handles operations for recipes using in-memory storage
+ * Handles operations for recipes using Prisma
  */
 
 // Import shared models
 import { ServerRecipe as Recipe, Tag, RecipeTag } from '../types/shared-models';
+import { prisma } from '../services/prisma.service';
 
 /**
  * Recipe Repository class
  */
 export class RecipeRepositoryClass {
-  // In-memory data store
-  private recipeStore: Recipe[] = [
-    {
-      id: 1,
-      title: 'Pasta Carbonara',
-      description: 'A classic Italian pasta dish',
-      ingredients: ['200g spaghetti', '100g pancetta', '2 eggs', '50g pecorino cheese', 'Black pepper'],
-      instructions: 'Cook pasta. Fry pancetta. Mix eggs and cheese. Combine everything.',
-      prepTime: 10,
-      cookTime: 15,
-      servings: 2,
-      imageUrl: 'https://example.com/carbonara.jpg',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: 1,
-      user: { id: 1, email: 'user@example.com', name: 'Test User' },
-      tags: [
-        { recipeId: 1, tagId: 1, tag: { id: 1, name: 'Italian' } },
-        { recipeId: 1, tagId: 2, tag: { id: 2, name: 'Quick' } }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Chicken Curry',
-      description: 'Spicy chicken curry',
-      ingredients: ['500g chicken', 'Curry powder', 'Onion', 'Garlic', 'Coconut milk'],
-      instructions: 'Fry onion and garlic. Add chicken. Add spices. Add coconut milk. Simmer.',
-      prepTime: 15,
-      cookTime: 30,
-      servings: 4,
-      imageUrl: 'https://example.com/curry.jpg',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: 1,
-      user: { id: 1, email: 'user@example.com', name: 'Test User' },
-      tags: [
-        { recipeId: 2, tagId: 3, tag: { id: 3, name: 'Indian' } },
-        { recipeId: 2, tagId: 4, tag: { id: 4, name: 'Spicy' } }
-      ]
-    }
-  ];
-
-  // Helper function to process tags for consistency
-  private processTagsForRecipe(
-    recipeId: number, 
-    tags?: Array<RecipeTag | Tag | Record<string, unknown>>
-  ): RecipeTag[] {
-    if (!tags || !Array.isArray(tags)) {
-      return [];
-    }
-    
-    return tags.map(tagItem => {
-      // Case: It's already a RecipeTag with a tag property
-      if (tagItem && typeof tagItem === 'object' && 'tag' in tagItem && tagItem.tag) {
-        const tag = tagItem.tag as Tag;
-        return {
-          recipeId: recipeId,
-          tagId: tag.id,
-          tag: { id: tag.id, name: tag.name }
-        };
-      }
-      
-      // Case: It's a direct Tag object
-      if (tagItem && typeof tagItem === 'object' && 'id' in tagItem && 'name' in tagItem) {
-        const id = Number((tagItem as any).id);
-        const name = String((tagItem as any).name);
-        return {
-          recipeId: recipeId,
-          tagId: id,
-          tag: { id, name }
-        };
-      }
-      
-      // Fallback
-      return {
-        recipeId: recipeId,
-        tagId: 0,
-        tag: { id: 0, name: 'Unknown' }
-      };
-    });
-  }
-
   /**
    * Find all recipes with optional filtering
    */
@@ -101,111 +20,197 @@ export class RecipeRepositoryClass {
     where?: Record<string, unknown>;
     orderBy?: Record<string, unknown>;
   } = {}): Promise<Recipe[]> {
-    // Apply basic filtering
-    let results = [...this.recipeStore];
+    // Use Prisma to query the database
+    const recipes = await prisma.recipe.findMany({
+      skip: params.skip,
+      take: params.take,
+      where: params.where as any,
+      orderBy: params.orderBy as any,
+      include: {
+        user: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        ingredients: true
+      }
+    });
     
-    // Apply pagination if provided
-    if (params.skip !== undefined || params.take !== undefined) {
-      const skip = params.skip || 0;
-      const take = params.take || results.length;
-      results = results.slice(skip, skip + take);
-    }
-    
-    return Promise.resolve(results);
+    // Map Prisma types to our ServerRecipe model
+    return recipes.map((recipe: any) => ({
+      ...recipe,
+      // Parse the ingredients from JSON string
+      ingredients: recipe.ingredientsText ? JSON.parse(recipe.ingredientsText) : [],
+      // Transform tags to match expected format
+      tags: recipe.tags.map((t: any) => ({
+        recipeId: t.recipeId,
+        tagId: t.tagId,
+        tag: t.tag
+      }))
+    })) as Recipe[];
   }
 
   /**
    * Find a recipe by ID
    */
   async findById(id: number): Promise<Recipe | null> {
-    const recipe = this.recipeStore.find((r: Recipe) => r.id === id);
-    return Promise.resolve(recipe || null);
+    const recipe = await prisma.recipe.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        ingredients: true
+      }
+    });
+    
+    if (!recipe) {
+      return null;
+    }
+    
+    // Transform to match expected model
+    return {
+      ...recipe,
+      ingredients: recipe.ingredientsText ? JSON.parse(recipe.ingredientsText) : [],
+      tags: recipe.tags.map((t: any) => ({
+        recipeId: t.recipeId,
+        tagId: t.tagId,
+        tag: t.tag
+      }))
+    } as Recipe;
   }
 
   /**
    * Create a new recipe
    */
   async create(data: Partial<Recipe>): Promise<Recipe> {
-    // Determine new ID
-    const newId = Math.max(...this.recipeStore.map((r: Recipe) => r.id), 0) + 1;
+    // Convert ingredients array to JSON string
+    const ingredientsText = JSON.stringify(data.ingredients || []);
     
-    // Process tags
-    const processedTags = this.processTagsForRecipe(newId, data.tags);
+    // Create recipe record
+    const recipe = await prisma.recipe.create({
+      data: {
+        title: data.title || 'Untitled Recipe',
+        description: data.description || '',
+        ingredientsText: ingredientsText,
+        instructions: data.instructions || '',
+        prepTime: data.prepTime,
+        cookTime: data.cookTime,
+        servings: data.servings,
+        imageUrl: data.imageUrl,
+        user: data.userId ? { connect: { id: data.userId } } : undefined,
+        tags: data.tags ? {
+          create: (data.tags as RecipeTag[]).map(tag => ({
+            tag: { connect: { id: tag.tagId } }
+          }))
+        } : undefined
+      },
+      include: {
+        user: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        ingredients: true
+      }
+    });
     
-    // Create the new recipe
-    const newRecipe: Recipe = {
-      id: newId,
-      title: data.title || 'Untitled Recipe',
-      description: data.description || '',
-      ingredients: data.ingredients || [],
-      instructions: data.instructions || '',
-      prepTime: data.prepTime,
-      cookTime: data.cookTime,
-      servings: data.servings,
-      imageUrl: data.imageUrl,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: data.userId,
-      user: data.user,
-      tags: processedTags
-    };
-    
-    this.recipeStore.push(newRecipe);
-    return Promise.resolve(newRecipe);
+    // Transform to match expected model
+    return {
+      ...recipe,
+      ingredients: recipe.ingredientsText ? JSON.parse(recipe.ingredientsText) : [],
+      tags: recipe.tags.map((t: any) => ({
+        recipeId: t.recipeId,
+        tagId: t.tagId,
+        tag: t.tag
+      }))
+    } as Recipe;
   }
 
   /**
    * Update a recipe
    */
   async update(id: number, data: Partial<Recipe>): Promise<Recipe> {
-    const index = this.recipeStore.findIndex((r: Recipe) => r.id === id);
-    
-    if (index === -1) {
+    // Get the current recipe
+    const existingRecipe = await this.findById(id);
+    if (!existingRecipe) {
       throw new Error('Recipe not found');
     }
     
-    // Start with a copy of the existing recipe
-    const currentRecipe = this.recipeStore[index];
+    // Convert ingredients array to JSON string if present
+    const ingredientsText = data.ingredients !== undefined 
+      ? JSON.stringify(data.ingredients)
+      : undefined;
     
-    // Create updated recipe object
-    const updatedRecipe: Recipe = {
-      ...currentRecipe,
-      title: data.title !== undefined ? data.title : currentRecipe.title,
-      description: data.description !== undefined ? data.description : currentRecipe.description,
-      ingredients: data.ingredients !== undefined ? data.ingredients : currentRecipe.ingredients,
-      instructions: data.instructions !== undefined ? data.instructions : currentRecipe.instructions,
-      prepTime: data.prepTime !== undefined ? data.prepTime : currentRecipe.prepTime,
-      cookTime: data.cookTime !== undefined ? data.cookTime : currentRecipe.cookTime,
-      servings: data.servings !== undefined ? data.servings : currentRecipe.servings,
-      imageUrl: data.imageUrl !== undefined ? data.imageUrl : currentRecipe.imageUrl,
-      userId: data.userId !== undefined ? data.userId : currentRecipe.userId,
-      user: data.user !== undefined ? data.user : currentRecipe.user,
-      updatedAt: new Date()
-    };
+    // Update recipe record
+    const recipe = await prisma.recipe.update({
+      where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        ingredientsText: ingredientsText,
+        instructions: data.instructions,
+        prepTime: data.prepTime,
+        cookTime: data.cookTime,
+        servings: data.servings,
+        imageUrl: data.imageUrl,
+        // Update user if userId is changed
+        user: data.userId !== undefined ? {
+          connect: { id: data.userId }
+        } : undefined,
+        // Handle tag updates if present
+        tags: data.tags ? {
+          // Delete existing and recreate
+          deleteMany: {},
+          create: (data.tags as RecipeTag[]).map(tag => ({
+            tag: { connect: { id: tag.tagId } }
+          }))
+        } : undefined
+      },
+      include: {
+        user: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        ingredients: true
+      }
+    });
     
-    // Process tags if provided, otherwise keep existing tags
-    if (data.tags !== undefined) {
-      updatedRecipe.tags = this.processTagsForRecipe(id, data.tags);
-    }
-    
-    this.recipeStore[index] = updatedRecipe;
-    return Promise.resolve(updatedRecipe);
+    // Transform to match expected model
+    return {
+      ...recipe,
+      ingredients: recipe.ingredientsText ? JSON.parse(recipe.ingredientsText) : [],
+      tags: recipe.tags.map((t: any) => ({
+        recipeId: t.recipeId,
+        tagId: t.tagId,
+        tag: t.tag
+      }))
+    } as Recipe;
   }
 
   /**
    * Delete a recipe
    */
   async delete(id: number): Promise<Recipe> {
-    const index = this.recipeStore.findIndex((r: Recipe) => r.id === id);
-    
-    if (index === -1) {
+    // Get the recipe before deletion
+    const recipe = await this.findById(id);
+    if (!recipe) {
       throw new Error('Recipe not found');
     }
     
-    const deletedRecipe = this.recipeStore[index];
-    this.recipeStore.splice(index, 1);
+    // Delete recipe and related records
+    await prisma.recipe.delete({
+      where: { id }
+    });
     
-    return Promise.resolve(deletedRecipe);
+    return recipe;
   }
 }
 

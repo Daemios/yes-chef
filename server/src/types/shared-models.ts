@@ -4,6 +4,10 @@
 import { BaseRecipe, Recipe, ServerRecipe, Tag, RecipeTag, NutritionInfo, CreateRecipeDTO, UpdateRecipeDTO } from '../../../shared/models/recipe.model';
 export { BaseRecipe, Recipe, ServerRecipe, Tag, RecipeTag, NutritionInfo, CreateRecipeDTO, UpdateRecipeDTO };
 
+// Ingredient model exports
+import { BaseIngredient, Ingredient, ServerIngredient, CreateIngredientDTO, UpdateIngredientDTO } from '../../../shared/models/ingredient.model';
+export { BaseIngredient, Ingredient, ServerIngredient, CreateIngredientDTO, UpdateIngredientDTO };
+
 // User model exports 
 import { User, UserProfile, LoginCredentials, RegistrationData } from '../../../shared/models/user.model';
 export { User, UserProfile, LoginCredentials, RegistrationData };

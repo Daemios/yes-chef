@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -19,8 +19,8 @@ model Recipe {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
-  ingredients String[]
-  instructions String
+  ingredientsText String @db.Text  // Store as JSON string to be parsed in application
+  instructions String @db.Text
   prepTime    Int?     // Preparation time in minutes
   cookTime    Int?     // Cooking time in minutes
   servings    Int?
@@ -30,6 +30,7 @@ model Recipe {
   userId      Int?
   user        User?     @relation(fields: [userId], references: [id])
   tags        TagsOnRecipes[]
+  ingredients Ingredient[]
 }
 
 model User {
@@ -56,4 +57,14 @@ model TagsOnRecipes {
   assignedAt DateTime @default(now())
 
   @@id([recipeId, tagId])
+}
+
+model Ingredient {
+  id         Int       @id @default(autoincrement())
+  name       String
+  amount     String?   // Amount like "2 cups" or "300g"
+  recipeId   Int
+  recipe     Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }

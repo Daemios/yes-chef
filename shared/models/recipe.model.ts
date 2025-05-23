@@ -44,7 +44,8 @@ export interface BaseRecipe {
   id: number;
   title: string;
   description?: string;
-  ingredients: string[];
+  ingredients: string[]; // For backward compatibility - will be handled by repository
+  ingredientsText?: string; // Raw JSON string from database
   instructions: string;
   prepTime?: number;
   cookTime?: number;
