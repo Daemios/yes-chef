@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { MealPrep, PortionDate, MealPrepMode } from '@/types/meal-prep';
+import { MealPrep, PortionDate, MealPrepMode } from '@/types/meal-types';
 import { generateRandomColor } from '@/services/color.service';
 
 export const useMealPrepStore = defineStore('mealPrep', () => {

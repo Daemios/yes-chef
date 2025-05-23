@@ -15,12 +15,12 @@ yes-chef/
 │   │   ├── services/       # API services
 │   │   ├── types/          # TypeScript type definitions
 │   │   ├── views/          # Page components
+│   │   │   └── __tests__/  # Test files for views
 │   │   ├── App.vue         # Main app component
 │   │   └── main.ts         # Entry point
-│   ├── tests/              # Legacy tests location
 │   ├── index.html          # HTML template
 │   ├── tsconfig.json       # TypeScript config for client
-│   ├── vite.config.ts      # Vite configuration
+│   ├── vite.config.ts      # Vite configuration for client
 │   └── vitest.config.ts    # Vitest configuration for client tests
 │
 ├── server/                 # Express backend
@@ -37,8 +37,6 @@ yes-chef/
 │   ├── tests/              # Additional server tests
 │   ├── vitest.config.ts    # Vitest configuration for server
 │   └── tsconfig.json       # TypeScript config for server
-│
-├── config/                 # Project configuration files
 │
 ├── dist/                   # Compiled output (not in repository)
 │   ├── client/             # Built client files
@@ -95,18 +93,6 @@ npm run test:server
 
 # Run client tests only
 npm run test:client
-
-# Run Vitest (alternative test framework for client)
-npm run vitest
-
-# Run tests
-npm test
-
-# Run client tests only
-npm run test:client
-
-# Run server tests only
-npm run test:server
 
 # Run Vitest in watch mode
 npm run test:watch

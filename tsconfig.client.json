@@ -12,15 +12,24 @@
     "useDefineForClassFields": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "client/src/*"
+      ],
+      "@shared/*": [
+        "shared/*"
+      ]
+    },
     "types": [
       "vue",
       "node",
-      "jest"
+      "vitest/globals"
     ]
   },
   "include": [
     "client/**/*.ts",
-    "client/**/*.vue"
+    "client/**/*.vue",
+    "shared/**/*.ts"
   ],
   "exclude": [
     "node_modules",

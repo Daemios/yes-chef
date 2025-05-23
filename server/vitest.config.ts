@@ -7,9 +7,8 @@ export default defineConfig({
     include: ['**/__tests__/**/*.test.ts', '**/tests/**/*.test.ts'],
     exclude: ['**/node_modules/**', '**/dist/**'],
     globals: true,
-    setupFiles: ['./src/setup.ts'],
-    coverage: {
-      provider: 'c8',
+    setupFiles: ['./src/setup.ts'],    coverage: {
+      provider: 'v8',
       reporter: ['text', 'json', 'html'],
       reportsDirectory: '../coverage-server'
     },

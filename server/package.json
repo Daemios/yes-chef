@@ -4,7 +4,7 @@
   "description": "Server component for Yes Chef application",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node -r tsconfig-paths/register src/server.ts",
     "build": "tsc",
     "start": "node ../dist/server/server.js",
     "test": "vitest run",
@@ -21,11 +21,12 @@
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/node": "^18.15.11",
-    "@vitest/coverage-c8": "^0.31.0",
+    "@vitest/coverage-v8": "^0.31.0",
     "@vitest/ui": "^0.31.0",
     "nodemon": "^2.0.22",
     "prisma": "^6.8.2",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4",
     "vitest": "^0.31.0"
   }
