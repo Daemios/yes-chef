@@ -1,6 +1,9 @@
 /**
  * Server entry point
  */
+// Register module aliases before importing other modules
+import './config/module-alias';
+
 import app from './app';
 import { config } from './config/server.config';
 import { createServer } from 'net';
