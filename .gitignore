@@ -41,6 +41,12 @@ dist-ssr
 .env.test.local
 .env.production.local
 
+# Runtime config files
+server-port.json
+
+# Test utilities
+test-port-conflicts.js
+
 # OS files
 .DS_Store
 Thumbs.db

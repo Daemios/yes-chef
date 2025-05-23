@@ -50,8 +50,17 @@ export const getRecipeById = async (req: Request, res: Response): Promise<void> 
  * Create a new recipe
  */
 export const createRecipe = async (req: Request, res: Response): Promise<void> => {
-  try {    // In a real application, you'd validate the request body here
-    const newRecipe = await RecipeRepository.create(req.body);
+  try {
+    // Get user ID from the auth middleware
+    const userId = (req as any).user?.userId;
+    
+    // Add userId to the recipe data
+    const recipeData = {
+      ...req.body,
+      userId: userId
+    };
+    
+    const newRecipe = await RecipeRepository.create(recipeData);
     res.status(201).json(newRecipe);
   } catch (error) {
     console.error('Error creating recipe:', error);

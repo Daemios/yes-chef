@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -16,55 +15,79 @@ datasource db {
 
 // Define models for our cooking application
 model Recipe {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String?
-  ingredientsText String @db.Text  // Store as JSON string to be parsed in application
-  instructions String @db.Text
-  prepTime    Int?     // Preparation time in minutes
-  cookTime    Int?     // Cooking time in minutes
-  servings    Int?
-  imageUrl    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  userId      Int?
-  user        User?     @relation(fields: [userId], references: [id])
-  tags        TagsOnRecipes[]
-  ingredients Ingredient[]
+  id              Int             @id @default(autoincrement())
+  title           String
+  description     String?         @db.Text
+  ingredientsText String          @db.Text // Store as JSON string to be parsed in application
+  instructions    String          @db.Text
+  prepTime        Int?            @default(15) // Preparation time in minutes, default 15 min
+  cookTime        Int?            @default(30) // Cooking time in minutes, default 30 min
+  servings        Int?            @default(4) // Default to 4 servings
+  difficulty      String?         @default("medium") // Easy, medium, hard
+  imageUrl        String?
+  isPublished     Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+  userId          Int?
+  user            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tags            TagsOnRecipes[]
+  ingredients     Ingredient[]
+
+  @@index([userId])
+  @@index([title])
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  recipes   Recipe[]
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String?
+  password     String
+  role         String    @default("user") // user, admin, etc.
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  profileImage String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  recipes      Recipe[]
+
+  @@index([email])
 }
 
 model Tag {
-  id      Int      @id @default(autoincrement())
-  name    String   @unique
-  recipes TagsOnRecipes[]
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
+  description String?
+  color       String?         @default("#3498db") // Default tag color
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
+  recipes     TagsOnRecipes[]
+
+  @@index([name])
 }
 
 model TagsOnRecipes {
-  recipe    Recipe  @relation(fields: [recipeId], references: [id])
-  recipeId  Int
-  tag       Tag     @relation(fields: [tagId], references: [id])
-  tagId     Int
+  recipe     Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId   Int
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  tagId      Int
   assignedAt DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
   @@id([recipeId, tagId])
 }
 
 model Ingredient {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  amount     String?   // Amount like "2 cups" or "300g"
+  amount     String? // Amount like "2 cups" or "300g"
+  unit       String? // e.g., cups, tablespoons, grams
+  substitute String? // Potential substitution
+  isOptional Boolean  @default(false)
   recipeId   Int
-  recipe     Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([recipeId])
+  @@index([name])
 }

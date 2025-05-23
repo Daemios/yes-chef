@@ -19,17 +19,27 @@
                 <v-img src="/img/subscribe-illustration.svg" alt="Yes Chef Meal Planning" class="mt-6" max-height="180" contain />
               </div>
             </v-col>
-            
-            <v-col cols="12" md="7" class="pa-8">
+              <v-col cols="12" md="7" class="pa-8">
               <h3 class="text-h5 font-weight-bold mb-4">Create Your Account</h3>
               
               <v-form @submit.prevent="handleSignup">
-                <v-row>
+                <!-- Error Alert -->
+                <v-alert
+                  v-if="errorMessage"
+                  type="error"
+                  variant="outlined"
+                  class="mb-4"
+                  closable
+                  @click:close="errorMessage = ''"
+                >
+                  {{ errorMessage }}
+                </v-alert>                <v-row>
                   <v-col cols="12" sm="6">
                     <v-text-field
                       v-model="firstName"
                       label="First Name"
                       variant="outlined"
+                      autocomplete="given-name"
                       required
                     ></v-text-field>
                   </v-col>
@@ -38,6 +48,7 @@
                       v-model="lastName"
                       label="Last Name"
                       variant="outlined"
+                      autocomplete="family-name"
                       required
                     ></v-text-field>
                   </v-col>
@@ -48,6 +59,7 @@
                   label="Email Address"
                   type="email"
                   variant="outlined"
+                  autocomplete="email"
                   required
                 ></v-text-field>
                 
@@ -58,6 +70,7 @@
                   :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
                   @click:append-inner="showPassword = !showPassword"
                   variant="outlined"
+                  autocomplete="new-password"
                   required
                 ></v-text-field>
                 
@@ -110,11 +123,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
 export default defineComponent({
   name: 'SubscribeView',
   setup() {
     const router = useRouter();
+    const authStore = useAuthStore();
+    
     const firstName = ref('');
     const lastName = ref('');
     const email = ref('');
@@ -123,6 +139,7 @@ export default defineComponent({
     const plan = ref('premium');
     const terms = ref(false);
     const isLoading = ref(false);
+    const errorMessage = ref('');
     
     const plans = [
       { title: 'Basic Plan - $4.99/month', value: 'basic' },
@@ -139,14 +156,32 @@ export default defineComponent({
     ];
     
     const handleSignup = async () => {
+      // Clear previous errors
+      errorMessage.value = '';
+      authStore.clearError();
+      
+      // Basic validation
+      if (!email.value || !password.value || !firstName.value || !terms.value) {
+        errorMessage.value = 'Please fill in all required fields and accept the terms';
+        return;
+      }
+
       isLoading.value = true;
       
-      // Simulate API call with timeout
-      setTimeout(() => {
-        isLoading.value = false;
-        // For demo purposes, just forward to dashboard
+      try {
+        await authStore.register({
+          email: email.value,
+          password: password.value,
+          name: `${firstName.value} ${lastName.value}`.trim()
+        });
+        
+        // Registration successful, redirect to dashboard
         router.push('/dashboard');
-      }, 1000);
+      } catch (error) {
+        errorMessage.value = authStore.error || 'Registration failed. Please try again.';
+      } finally {
+        isLoading.value = false;
+      }
     };
     
     return {
@@ -160,6 +195,7 @@ export default defineComponent({
       terms,
       benefits,
       isLoading,
+      errorMessage,
       handleSignup
     };
   }

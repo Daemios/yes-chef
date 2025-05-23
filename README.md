@@ -133,6 +133,36 @@ See [TESTING.md](TESTING.md) for more details on the testing setup.
 - `config/`: Server configuration
 - `models/`: Data models and database schema
 
+## 🔌 Port Management & API Connectivity
+
+This application includes a **flexible port discovery system** to handle situations where the server can't start on its default port.
+
+### How it works:
+
+1. **Server Port Discovery**: The server attempts to start on port 3002 (default), but if that port is occupied, it automatically finds the next available port
+2. **Dynamic Proxy Configuration**: The Vite development server reads the actual server port and configures its proxy accordingly
+3. **Runtime Failover**: If the proxy fails, the client services automatically discover the server port by checking common ports
+
+### Port Configuration:
+
+- **Client (Vite)**: Runs on port 5173
+- **Server**: Attempts port 3002, then searches for available ports (3003, 3001, 3000, 3004, 3005...)
+- **Port Discovery File**: `server-port.json` (auto-generated, not committed to git)
+
+This ensures API requests work reliably even when you have multiple development instances running or port conflicts.
+
+### Testing Port Discovery:
+
+```bash
+# Test the port discovery system by simulating port conflicts
+npm run test:ports
+
+# In another terminal, start the server - it will find an available port
+npm run dev:server
+```
+
+The server will automatically find the next available port, and the client will discover it dynamically.
+
 ## 🔄 API Endpoints
 
 - `GET /health`: Health check endpoint (returns server status)

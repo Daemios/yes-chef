@@ -12,12 +12,23 @@
           </div>
 
           <v-form @submit.prevent="handleLogin">
-            <v-text-field
+            <!-- Error Alert -->
+            <v-alert
+              v-if="errorMessage"
+              type="error"
+              variant="outlined"
+              class="mb-4"
+              closable
+              @click:close="errorMessage = ''"
+            >
+              {{ errorMessage }}
+            </v-alert>            <v-text-field
               v-model="email"
               label="Email"
               type="email"
               prepend-inner-icon="mdi-email-outline"
               variant="outlined"
+              autocomplete="email"
               required
             ></v-text-field>
 
@@ -29,6 +40,7 @@
               :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append-inner="showPassword = !showPassword"
               variant="outlined"
+              autocomplete="current-password"
               required
             ></v-text-field>
 
@@ -87,26 +99,47 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
 export default defineComponent({
   name: 'LoginView',
   setup() {
     const router = useRouter();
+    const authStore = useAuthStore();
+    
     const email = ref('');
     const password = ref('');
     const showPassword = ref(false);
     const rememberMe = ref(false);
     const isLoading = ref(false);
+    const errorMessage = ref('');
 
     const handleLogin = async () => {
+      // Clear previous errors
+      errorMessage.value = '';
+      authStore.clearError();
+      
+      // Basic validation
+      if (!email.value || !password.value) {
+        errorMessage.value = 'Please fill in all fields';
+        return;
+      }
+
       isLoading.value = true;
       
-      // Simulate API call with timeout
-      setTimeout(() => {
-        isLoading.value = false;
-        // For demo purposes, just forward to dashboard
+      try {
+        await authStore.login({
+          email: email.value,
+          password: password.value
+        });
+        
+        // Login successful, redirect to dashboard
         router.push('/dashboard');
-      }, 1000);
+      } catch (error) {
+        errorMessage.value = authStore.error || 'Login failed. Please try again.';
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     return {
@@ -115,6 +148,7 @@ export default defineComponent({
       showPassword,
       rememberMe,
       isLoading,
+      errorMessage,
       handleLogin
     };
   }
