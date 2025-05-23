@@ -134,15 +134,19 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const guestOnly = to.matched.some(record => record.meta.guestOnly)
   
-  // For debugging - create the store instance
+  // Get the auth store instance
   const authStore = useAuthStore()
   
-  // Redirect to dashboard if user tries to access login/register while logged in
+  console.log(`Route guard for ${to.path}: Auth state is ${authStore.isAuthenticated ? 'authenticated' : 'not authenticated'}`)
+  
+  // Redirect to dashboard if user tries to access login/register/home while logged in
   if (guestOnly && authStore.isAuthenticated) {
+    console.log(`Redirecting from ${to.path} to /dashboard (user is authenticated)`)
     next('/dashboard')
   }
   // Redirect to login if user tries to access protected route while logged out
   else if (requiresAuth && !authStore.isAuthenticated) {
+    console.log(`Redirecting from ${to.path} to /login (auth required)`)
     next('/login')
   } else {
     next()

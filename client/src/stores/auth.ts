@@ -87,10 +87,9 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('auth_token');
       
       console.log('User logged out');
-    },
-
-    /**
+    },    /**
      * Initialize auth state from stored token
+     * @returns Promise that resolves when auth state is initialized
      */
     async initializeAuth() {
       if (this.token) {
@@ -98,11 +97,16 @@ export const useAuthStore = defineStore('auth', {
           const response = await getCurrentUser(this.token);
           this.user = response.user;
           this.isAuthenticated = true;
+          console.log('Auth initialized: User is logged in');
         } catch (error) {
           // Token is invalid, clear it
+          console.log('Auth initialized: Invalid token, logging out');
           this.logout();
         }
+      } else {
+        console.log('Auth initialized: No token found');
       }
+      return true; // Return a value so we can await this function
     },
 
     /**

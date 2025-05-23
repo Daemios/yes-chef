@@ -12,11 +12,11 @@
     "build:client": "cd client && vite build",
     "test": "npm run test:server && npm run test:client",
     "test:server": "cd server && vitest run",
-    "test:client": "cd client && vitest run",
-    "db": "cd server && npm run db:update",
+    "test:client": "cd client && vitest run",    "db": "cd server && npm run db:update",
     "clean": "rimraf dist",
     "lint": "eslint . --ext .js,.ts,.vue",
-    "lint:fix": "eslint . --ext .js,.ts,.vue --fix"
+    "lint:fix": "eslint . --ext .js,.ts,.vue --fix",
+    "test:ports": "node test-port-conflicts.js"
   },
   "repository": {
     "type": "git",
