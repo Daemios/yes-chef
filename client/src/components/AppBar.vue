@@ -15,9 +15,10 @@
     
     <!-- Desktop Navigation -->
     <div class="d-none d-md-flex align-center">
-      <!-- For authenticated users -->
-      <template v-if="authStore.isAuthenticated">
-        <v-tabs v-model="activeTab" color="accent" align-tabs="center" height="64">
+      <!-- For authenticated users -->      <template v-if="authStore.isAuthenticated">        <v-tabs v-model="activeTab" color="accent" align-tabs="center" height="64">
+          <v-tab value="meals" to="/meals">
+            <v-icon class="mr-1">mdi-calendar-month</v-icon> Meals
+          </v-tab>
           <v-tab value="dashboard" to="/dashboard">
             <v-icon class="mr-1">mdi-view-dashboard</v-icon> Dashboard
           </v-tab>
@@ -57,10 +58,14 @@
           </v-list>
         </v-menu>
       </template>
-      
-      <!-- For non-authenticated users -->
-      <template v-else>
-        <v-tabs v-model="publicTab" color="accent" align-tabs="center" height="64">
+        <!-- For non-authenticated users -->
+      <template v-else>        <v-tabs v-model="publicTab" color="accent" align-tabs="center" height="64">
+          <v-tab value="meals" to="/meals">
+            <v-icon class="mr-1">mdi-calendar-month</v-icon> Meals
+          </v-tab>
+          <v-tab value="recipes" to="/recipes">
+            <v-icon class="mr-1">mdi-book-open-page-variant</v-icon> Recipes
+          </v-tab>
           <v-tab value="features" to="/features">
             <v-icon class="mr-1">mdi-star</v-icon> Features
           </v-tab>
@@ -105,9 +110,9 @@
     </v-list>
     
     <v-divider></v-divider>
-    
-    <!-- Authenticated User Mobile Menu -->
+      <!-- Authenticated User Mobile Menu -->
     <template v-if="authStore.isAuthenticated">      <v-list density="compact" nav>
+        <v-list-item title="Meals" prepend-icon="mdi-calendar-month" to="/meals"></v-list-item>
         <v-list-item title="Dashboard" prepend-icon="mdi-view-dashboard" to="/dashboard"></v-list-item>
         <v-list-item title="Shopping List" prepend-icon="mdi-cart" to="/shopping"></v-list-item>
         <v-list-item title="Nutrition" prepend-icon="mdi-nutrition" to="/dietary"></v-list-item>
@@ -128,11 +133,11 @@
         <v-list-item title="Logout" prepend-icon="mdi-logout" @click="handleLogout"></v-list-item>
       </v-list>
     </template>
-    
-    <!-- Non-Authenticated User Mobile Menu -->
+      <!-- Non-Authenticated User Mobile Menu -->
     <template v-else>
       <v-list density="compact" nav>
         <v-list-item title="Home" prepend-icon="mdi-home" to="/"></v-list-item>
+        <v-list-item title="Meals" prepend-icon="mdi-calendar-month" to="/meals"></v-list-item>
         <v-list-item title="Features" prepend-icon="mdi-star" to="/features"></v-list-item>
         <v-list-item title="Pricing" prepend-icon="mdi-tag" to="/pricing"></v-list-item>
         <v-list-item title="About" prepend-icon="mdi-information" to="/about"></v-list-item>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { MealPrep, PortionDate, MealPrepMode } from '@/types/meal-types';
-import { generateRandomColor } from '@/services/color.service';
+import { MealPrep, PortionDate, MealPrepMode } from '../types/meal-types';
+import { generateRandomColor } from '../services/color.service';
 
 export const useMealPrepStore = defineStore('mealPrep', () => {
   const mealPreps = ref<MealPrep[]>([]);
@@ -127,8 +127,7 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
   
   // Get the current prep mode
   const getPrepMode = computed(() => currentPrepMode.value);
-  
-  // Delete a meal prep
+    // Delete a meal prep
   function deleteMealPrep(mealId: string) {
     const index = mealPreps.value.findIndex(m => m.id === mealId);
     if (index !== -1) {
@@ -136,6 +135,46 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
       return true;
     }
     return false;
+  }
+  
+  // Update meal prep servings
+  function updateMealPrepServings(mealId: string, servings: number) {
+    const meal = mealPreps.value.find(m => m.id === mealId);
+    if (!meal) return false;
+    
+    // Update total portions
+    meal.totalPortions = servings;
+    
+    // Recalculate portion dates
+    const currentPortionDates = meal.portionDates;
+    const prepDate = new Date(meal.prepDate);
+    
+    // Clear current portions
+    meal.portionDates = [];
+    
+    // Recreate portion dates
+    // First portion is on the prep date
+    meal.portionDates.push({
+      portionNumber: 1,
+      date: meal.prepDate,
+      consumed: currentPortionDates.length > 0 ? currentPortionDates[0].consumed : false
+    });
+    
+    // Additional portions are on subsequent days
+    for (let i = 2; i <= servings; i++) {
+      const nextDate = new Date(prepDate);
+      nextDate.setDate(nextDate.getDate() + (i - 1));
+      
+      const existingPortion = currentPortionDates.find(p => p.portionNumber === i);
+      
+      meal.portionDates.push({
+        portionNumber: i,
+        date: nextDate.toISOString().split('T')[0],
+        consumed: existingPortion ? existingPortion.consumed : false
+      });
+    }
+    
+    return true;
   }
   
   // Clear all meal preps (for testing)
@@ -212,6 +251,7 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     markPortionConsumed,
     getMealColorByName,
     deleteMealPrep,
+    updateMealPrepServings,
     clearAllMealPreps,
     loadSampleData,
     getTodaysPrep,

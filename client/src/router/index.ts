@@ -6,6 +6,7 @@ import AboutView from '../views/AboutView.vue'
 import ApiView from '../views/ApiView.vue'
 import LoginView from '../views/LoginView.vue'
 import SubscribeView from '../views/SubscribeView.vue'
+import RecipesView from '../views/RecipesView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import ShoppingView from '../views/ShoppingView.vue'
 import DietaryView from '../views/DietaryView.vue'
@@ -47,12 +48,27 @@ const routes: Array<RouteRecordRaw> = [  // Public routes
     meta: {
       title: 'About - Yes Chef'
     }
-  },
-  {
+  },  {
     path: '/api',
     name: 'api',
     component: ApiView
   },  {
+    path: '/meals',
+    name: 'meals',
+    component: RecipesView,
+    meta: {
+      title: 'Meal Planning - Yes Chef'
+    }
+  },
+  {
+    path: '/recipes',
+    name: 'recipes',
+    component: RecipesView,
+    meta: {
+      title: 'Recipes - Yes Chef'
+    }
+  },
+  {
     path: '/login',
     name: 'login',
     component: LoginView,
@@ -112,7 +128,7 @@ const routes: Array<RouteRecordRaw> = [  // Public routes
 // Create router instance
 const router = createRouter({
   // Use base URL from Vite environment variables or fallback to root
-  history: createWebHistory((import.meta.env?.BASE_URL as string) || '/'),
+  history: createWebHistory(import.meta.env.BASE_URL || '/'),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

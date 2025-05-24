@@ -32,8 +32,7 @@ export interface MealPrep {
   color: string; // HSL color string
   totalPortions: number;
   prepDate: string; // ISO format date string
-  portionDates: PortionDate[];
-  // Additional meal info
+  portionDates: PortionDate[];  // Additional meal info
   mealType: 'breakfast' | 'lunch' | 'dinner';
   recipeId?: number; // Link to the original recipe if applicable
   ingredients?: string[];

@@ -36,19 +36,42 @@ export class RecipeRepositoryClass {
         ingredients: true
       }
     });
-    
-    // Map Prisma types to our ServerRecipe model
-    return recipes.map((recipe: any) => ({
-      ...recipe,
-      // Parse the ingredients from JSON string
-      ingredients: recipe.ingredientsText ? JSON.parse(recipe.ingredientsText) : [],
-      // Transform tags to match expected format
-      tags: recipe.tags.map((t: any) => ({
-        recipeId: t.recipeId,
-        tagId: t.tagId,
-        tag: t.tag
-      }))
-    })) as Recipe[];
+      // Map Prisma types to our ServerRecipe model
+    return recipes.map((recipe: any) => {
+      let ingredients: string[] = [];
+      
+      // Safely parse ingredients from JSON string
+      if (recipe.ingredientsText) {
+        try {
+          ingredients = JSON.parse(recipe.ingredientsText);
+          // Ensure it's an array
+          if (!Array.isArray(ingredients)) {
+            console.warn(`Recipe ${recipe.id}: ingredientsText is not an array, converting...`);
+            ingredients = [String(ingredients)];
+          }
+        } catch (error) {
+          console.error(`Recipe ${recipe.id}: Failed to parse ingredientsText:`, recipe.ingredientsText);
+          console.error('Parse error:', error);
+          // Fallback: treat as comma-separated string or single ingredient
+          if (typeof recipe.ingredientsText === 'string') {
+            ingredients = recipe.ingredientsText.split(',').map((item: string) => item.trim());
+          } else {
+            ingredients = [];
+          }
+        }
+      }
+      
+      return {
+        ...recipe,
+        ingredients,
+        // Transform tags to match expected format
+        tags: recipe.tags.map((t: any) => ({
+          recipeId: t.recipeId,
+          tagId: t.tagId,
+          tag: t.tag
+        }))
+      };
+    }) as Recipe[];
   }
 
   /**
@@ -67,15 +90,37 @@ export class RecipeRepositoryClass {
         ingredients: true
       }
     });
-    
-    if (!recipe) {
+      if (!recipe) {
       return null;
+    }
+    
+    let ingredients: string[] = [];
+    
+    // Safely parse ingredients from JSON string
+    if (recipe.ingredientsText) {
+      try {
+        ingredients = JSON.parse(recipe.ingredientsText);
+        // Ensure it's an array
+        if (!Array.isArray(ingredients)) {
+          console.warn(`Recipe ${recipe.id}: ingredientsText is not an array, converting...`);
+          ingredients = [String(ingredients)];
+        }
+      } catch (error) {
+        console.error(`Recipe ${recipe.id}: Failed to parse ingredientsText:`, recipe.ingredientsText);
+        console.error('Parse error:', error);
+        // Fallback: treat as comma-separated string or single ingredient
+        if (typeof recipe.ingredientsText === 'string') {
+          ingredients = recipe.ingredientsText.split(',').map((item: string) => item.trim());
+        } else {
+          ingredients = [];
+        }
+      }
     }
     
     // Transform to match expected model
     return {
       ...recipe,
-      ingredients: recipe.ingredientsText ? JSON.parse(recipe.ingredientsText) : [],
+      ingredients,
       tags: recipe.tags.map((t: any) => ({
         recipeId: t.recipeId,
         tagId: t.tagId,

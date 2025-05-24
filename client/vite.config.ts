@@ -47,11 +47,11 @@ export default defineConfig({
         target: `http://localhost:${serverPort}`,
         changeOrigin: true,
         secure: false
-      },
-      '/recipes': {
+      },      '/api/recipes': {
         target: `http://localhost:${serverPort}`,
         changeOrigin: true,
-        secure: false
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
       },
       '/health': {
         target: `http://localhost:${serverPort}`,

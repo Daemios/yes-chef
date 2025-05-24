@@ -6,7 +6,7 @@ import type { Recipe, CreateRecipeDTO, UpdateRecipeDTO } from '../types/recipe';
 import { fetchWithPortDiscovery } from './port-discovery.service';
 
 // API base URL
-const API_BASE = '/recipes';
+const API_BASE = '/api/recipes';
 
 /**
  * Enhanced fetch that falls back to port discovery if proxy fails

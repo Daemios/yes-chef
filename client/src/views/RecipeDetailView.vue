@@ -7,13 +7,12 @@
             class="pa-0" 
             elevation="1"
             rounded="lg"
-          >
-            <v-img
-              v-if="recipeStore.currentRecipe.imageUrl"
-              :src="recipeStore.currentRecipe.imageUrl"
+          >            <v-img
+              :src="recipeImageUrl"
               height="300"
               cover
               gradient="to top, rgba(0,0,0,0.6) 0%, transparent 100%"
+              @error="handleImageError"
             >
               <template v-slot:placeholder>
                 <div class="d-flex align-center justify-center fill-height">
@@ -21,11 +20,6 @@
                 </div>
               </template>
             </v-img>
-              <div v-else class="position-relative overflow-hidden d-flex align-center justify-center" style="height: 200px; background-color: var(--v-theme-primary);">
-              <div class="position-absolute" style="background-image: linear-gradient(135deg, var(--v-theme-primary), var(--v-theme-secondary)); opacity: 0.8; top: 0; left: 0; right: 0; bottom: 0;"></div>
-              <div class="position-absolute" style="top: 10px; bottom: 10px; left: 10px; right: 10px; border: 1px solid var(--v-theme-accent); opacity: 0.5;"></div>
-              <v-icon icon="mdi-food-variant" size="64" color="accent" class="z-1"></v-icon>
-            </div>
             
             <v-card-title class="text-h3 pt-6 pb-2 px-6 font-weight-light">
               {{ recipeStore.currentRecipe.title }}
@@ -184,7 +178,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useRecipeStore } from '../stores/recipe.store';
 
@@ -195,12 +189,25 @@ export default defineComponent({
     const router = useRouter();
     const recipeStore = useRecipeStore();
     const confirmDelete = ref(false);
-    
-    onMounted(async () => {
+      onMounted(async () => {
       if (route.params.id && !isNaN(Number(route.params.id))) {
         await recipeStore.fetchRecipeDetails(Number(route.params.id));
       }
     });
+    
+    // Fallback image system
+    const defaultImageUrl = computed(() => {
+      // Import the healthy food bowl image as fallback
+      return new URL('../assets/images/healthy-food-bowl.jpg', import.meta.url).href;
+    });    const recipeImageUrl = computed(() => {
+      // Use recipe image if available and valid, otherwise use fallback
+      return recipeStore.currentRecipe?.imageUrl || defaultImageUrl.value;
+    });
+    
+    // Error handling for image loading
+    const handleImageError = () => {
+      console.log('Image failed to load for recipe:', recipeStore.currentRecipe?.title);
+    };
     
     const goBack = () => {
       router.push('/');
@@ -229,15 +236,15 @@ export default defineComponent({
           confirmDelete.value = false;
         }
       }
-    };
-    
-    return {
+    };    return {
       recipeStore,
       confirmDelete,
       goBack,
       adjustMeal,
       addToGroceryList,
-      deleteRecipe
+      deleteRecipe,
+      recipeImageUrl,
+      handleImageError
     };
   }
 });

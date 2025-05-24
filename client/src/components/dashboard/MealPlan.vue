@@ -25,120 +25,124 @@
     </v-card-title>
     <v-divider />
     
-    <!-- Meals table -->
-    <v-table class="meals-table">
-      <thead>
-        <tr>
-          <th class="text-left day-header">
-            Day
-          </th>
-          <th class="text-center meal-header">
-            <span class="meal-type-label">
-              <v-icon 
-                size="small" 
-                class="mr-1"
-              >
-                mdi-coffee
-              </v-icon>
-              Breakfast
-            </span>
-          </th>
-          <th class="text-center meal-header">
-            <span class="meal-type-label">
-              <v-icon 
-                size="small" 
-                class="mr-1"
-              >
-                mdi-food-apple
-              </v-icon>
-              Lunch
-            </span>
-          </th>
-          <th class="text-center meal-header">
-            <span class="meal-type-label">
-              <v-icon 
-                size="small" 
-                class="mr-1"
-              >
-                mdi-food
-              </v-icon>
-              Dinner
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr 
+    <!-- Restructured meals layout with meal types on left -->
+    <div class="meal-plan-grid">
+      <!-- Header row with days -->
+      <div class="grid-header">
+        <div class="meal-type-header">
+          <!-- Empty corner cell -->
+        </div>
+        <div 
           v-for="(day, index) in sortedMealPlan" 
           :key="index"
-          :ref="isToday(day.day) ? setTodaySection : undefined"
+          class="day-header-cell"
           :class="{'current-day': isToday(day.day)}"
         >
-          <td class="day-cell">
-            <div>
-              <div class="text-body-1">
-                {{ day.day }}
-              </div>
-              <div class="d-flex align-center">
-                <div class="text-no-wrap text-caption text-medium-emphasis mr-2">
-                  {{ getFormattedDate(day.day) }}
-                </div>
-                <v-chip
-                  v-if="isToday(day.day)"
-                  size="x-small"
-                  color="primary"
-                  class="flex-shrink-0"
-                  density="compact"
-                >
-                  Today
-                </v-chip>
-              </div>
+          <div class="text-body-1 font-weight-medium">
+            {{ day.day }}
+          </div>
+          <div class="d-flex align-center justify-center">
+            <div class="text-no-wrap text-caption text-medium-emphasis mr-2">
+              {{ getFormattedDate(day.day) }}
             </div>
-          </td>          <td class="meal-cell">
-            <UpcomingMeal
-              :meal-name="day.breakfast"
-              :day-name="day.day"
-              meal-type="breakfast"
-              :color="getMealColor(day.breakfast)"
-              :needs-prep="mealNeedsPrep(day.breakfast, day.day)"
-              :is-prepared="mealIsPrepared(day.breakfast, day.day)"
-              :leftovers="getMealLeftovers(day.breakfast)"
-            />
-          </td>
-          
-          <td class="meal-cell">
-            <UpcomingMeal
-              :meal-name="day.lunch"
-              :day-name="day.day"
-              meal-type="lunch"
-              :color="getMealColor(day.lunch)"
-              :needs-prep="mealNeedsPrep(day.lunch, day.day)"
-              :is-prepared="mealIsPrepared(day.lunch, day.day)"
-              :leftovers="getMealLeftovers(day.lunch)"
-            />
-          </td>
-          
-          <td class="meal-cell">
-            <UpcomingMeal
-              :meal-name="day.dinner"
-              :day-name="day.day"
-              meal-type="dinner"
-              :color="getMealColor(day.dinner)"
-              :needs-prep="mealNeedsPrep(day.dinner, day.day)"
-              :is-prepared="mealIsPrepared(day.dinner, day.day)"
-              :leftovers="getMealLeftovers(day.dinner)"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+            <v-chip
+              v-if="isToday(day.day)"
+              size="x-small"
+              color="primary"
+              class="flex-shrink-0"
+              density="compact"
+            >
+              Today
+            </v-chip>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakfast row -->
+      <div class="meal-type-row" :ref="hasCurrentDayBreakfast() ? setTodaySection : undefined">
+        <div class="meal-type-label-cell">
+          <div class="meal-type-label">
+            <v-icon size="small" class="mr-2">mdi-coffee</v-icon>
+            <span class="text-body-1 font-weight-medium">Breakfast</span>
+          </div>
+        </div>
+        <div 
+          v-for="(day, index) in sortedMealPlan" 
+          :key="'breakfast-' + index"
+          class="meal-cell"
+          :class="{'current-day-cell': isToday(day.day)}"
+        >
+          <UpcomingMeal
+            :meal-name="day.breakfast"
+            :day-name="day.day"
+            meal-type="breakfast"
+            :color="getMealColor(day.breakfast)"
+            :needs-prep="mealNeedsPrep(day.breakfast, day.day)"
+            :is-prepared="mealIsPrepared(day.breakfast, day.day)"
+            :leftovers="getMealLeftovers(day.breakfast)"
+          />
+        </div>
+      </div>
+
+      <!-- Lunch row -->
+      <div class="meal-type-row">
+        <div class="meal-type-label-cell">
+          <div class="meal-type-label">
+            <v-icon size="small" class="mr-2">mdi-food-apple</v-icon>
+            <span class="text-body-1 font-weight-medium">Lunch</span>
+          </div>
+        </div>
+        <div 
+          v-for="(day, index) in sortedMealPlan" 
+          :key="'lunch-' + index"
+          class="meal-cell"
+          :class="{'current-day-cell': isToday(day.day)}"
+        >
+          <UpcomingMeal
+            :meal-name="day.lunch"
+            :day-name="day.day"
+            meal-type="lunch"
+            :color="getMealColor(day.lunch)"
+            :needs-prep="mealNeedsPrep(day.lunch, day.day)"
+            :is-prepared="mealIsPrepared(day.lunch, day.day)"
+            :leftovers="getMealLeftovers(day.lunch)"
+          />
+        </div>
+      </div>
+
+      <!-- Dinner row -->
+      <div class="meal-type-row">
+        <div class="meal-type-label-cell">
+          <div class="meal-type-label">
+            <v-icon size="small" class="mr-2">mdi-food</v-icon>
+            <span class="text-body-1 font-weight-medium">Dinner</span>
+          </div>
+        </div>
+        <div 
+          v-for="(day, index) in sortedMealPlan" 
+          :key="'dinner-' + index"
+          class="meal-cell"
+          :class="{'current-day-cell': isToday(day.day)}"
+        >
+          <UpcomingMeal
+            :meal-name="day.dinner"
+            :day-name="day.day"
+            meal-type="dinner"
+            :color="getMealColor(day.dinner)"
+            :needs-prep="mealNeedsPrep(day.dinner, day.day)"
+            :is-prepared="mealIsPrepared(day.dinner, day.day)"
+            :leftovers="getMealLeftovers(day.dinner)"
+          />
+        </div>
+      </div>
+    </div>
   </v-card>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, nextTick, PropType } from 'vue';
-import { useMealPrepStore } from '@/stores/meal-prep.store';
-import UpcomingMeal from '@/components/dashboard/UpcomingMeal.vue';
+import { useMealPrepStore } from '../../stores/meal-prep.store';
+import UpcomingMeal from './UpcomingMeal.vue';
 
 interface MealDay {
   day: string;
@@ -314,9 +318,13 @@ export default defineComponent({
         'Turkey Meatballs with Pasta': 2,
         'Batch Chili': 5  // Heavy prep example
       };
-      
-      // Return the mapped value or a random value between 0 and 2
+        // Return the mapped value or a random value between 0 and 2
       return leftoverMap[mealName] !== undefined ? leftoverMap[mealName] : Math.floor(Math.random() * 3);
+    };
+
+    // Helper function to check if any of the current day's breakfast meals need today section reference
+    const hasCurrentDayBreakfast = (): boolean => {
+      return sortedMealPlan.value.some(day => isToday(day.day));
     };
       return {
       sortedMealPlan,
@@ -328,6 +336,7 @@ export default defineComponent({
       mealNeedsPrep,
       mealIsPrepared,
       getMealLeftovers,
+      hasCurrentDayBreakfast,
       mealPrepStore
     };
   }
@@ -335,96 +344,79 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Table styling */
-.meals-table {
+/* Grid layout styling */
+.meal-plan-grid {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  border-collapse: collapse;
 }
 
-/* Header styling */
-.meal-header {
-  height: 40px;
+/* Header row with days */
+.grid-header {
+  display: grid;
+  grid-template-columns: 120px repeat(3, 1fr);
+  gap: 1px;
+  background-color: rgba(var(--v-theme-surface-variant), 0.3);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+}
+
+.meal-type-header {
   background-color: rgba(var(--v-theme-surface-variant), 0.5);
+  padding: 12px;
+}
+
+.day-header-cell {
+  background-color: rgba(var(--v-theme-surface-variant), 0.5);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60px;
+}
+
+.day-header-cell.current-day {
+  background-color: rgba(var(--v-theme-primary), 0.1);
+  border: 1px solid rgba(var(--v-theme-primary), 0.3);
+}
+
+/* Meal type rows */
+.meal-type-row {
+  display: grid;
+  grid-template-columns: 120px repeat(3, 1fr);
+  gap: 1px;
+  background-color: rgba(var(--v-theme-surface-variant), 0.1);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.05);
+}
+
+.meal-type-label-cell {
+  background-color: rgba(var(--v-theme-surface-variant), 0.3);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
 }
 
 .meal-type-label {
   display: flex;
   align-items: center;
-  justify-content: center;
   font-weight: 500;
   font-size: 0.9rem;
 }
 
-/* Day and meal cells */
-.day-cell {
-  padding: 10px 12px;
-  min-width: 90px;
-  vertical-align: middle;
-}
-
 .meal-cell {
-  padding: 8px 6px;
-  text-align: center;
-  vertical-align: middle;
-}
-
-/* Meal card styling */
-.meal-card {
-  position: relative;
-  transition: all 0.2s ease;
-  height: 100%;
-  overflow: hidden;
-  background-color: transparent;
-  border-radius: 6px;
-  min-height: 42px;
+  background-color: rgba(var(--v-theme-surface), 1);
+  padding: 8px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.meal-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-.meal-card-content {
-  padding: 6px 4px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  min-height: 80px;
 }
 
-.meal-name-text {
-  font-size: 0.85rem;
-  white-space: normal;
-  line-height: 1.2;
-  padding: 2px 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.meal-title-chip {
-  max-width: 100%;
-  white-space: normal;
-  height: auto !important;
-  padding: 3px 6px !important;
-}
-
-/* Meal prep status indicators */
-.meal-card.needs-prep {
-  box-shadow: 0 0 0 1px rgba(var(--v-theme-warning), 0.5);
-}
-
-.meal-card.is-prepared {
-  box-shadow: 0 0 0 1px rgba(var(--v-theme-success), 0.5);
-}
-
-/* Highlight current day */
-.current-day {
-  background-color: rgba(var(--v-theme-primary), 0.08);
+.meal-cell.current-day-cell {
+  background-color: rgba(var(--v-theme-primary), 0.05);
 }
 
 /* Card styling */
@@ -432,27 +424,60 @@ export default defineComponent({
   overflow: hidden;
 }
 
+/* Highlight current day */
+.current-day {
+  background-color: rgba(var(--v-theme-primary), 0.08);
+}
+
 /* Responsive adjustments */
-@media (max-width: 600px) {
-  .day-cell {
-    padding: 6px 4px;
-    min-width: 70px;
+@media (max-width: 768px) {
+  .grid-header,
+  .meal-type-row {
+    grid-template-columns: 100px repeat(3, 1fr);
+  }
+  
+  .meal-type-label-cell,
+  .day-header-cell {
+    padding: 8px;
+    min-height: 60px;
   }
   
   .meal-cell {
-    padding: 6px 3px;
+    padding: 6px;
+    min-height: 60px;
   }
   
-  .meal-card {
-    min-height: 36px;
+  .meal-type-label {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-header,
+  .meal-type-row {
+    grid-template-columns: 80px repeat(3, 1fr);
   }
   
-  .meal-card-content {
-    padding: 6px 3px;
+  .meal-type-label-cell,
+  .day-header-cell {
+    padding: 6px;
+    min-height: 50px;
   }
   
-  .meal-name-text {
+  .meal-cell {
+    padding: 4px;
+    min-height: 50px;
+  }
+  
+  .meal-type-label {
     font-size: 0.75rem;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .meal-type-label .v-icon {
+    margin-right: 0 !important;
+    margin-bottom: 2px;
   }
 }
 </style>

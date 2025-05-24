@@ -13,7 +13,7 @@ const router = express.Router();
 // Mount route modules
 router.use('/health', healthRoutes);
 router.use('/api', apiRoutes);
-router.use('/recipes', recipeRoutes);
+router.use('/api/recipes', recipeRoutes);
 router.use('/auth', authRoutes);
 
 export default router;
