@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useMealPrepStore } from '../../stores/meal-prep.store';
+import { useRecipeStore } from '../../stores/recipe.store';
 import { Recipe } from '../../types/recipe';
 import CalendarDay from './CalendarDay.vue';
 
@@ -72,6 +73,7 @@ const emit = defineEmits<{
 
 // Stores
 const mealPrepStore = useMealPrepStore();
+const recipeStore = useRecipeStore();
 
 // State
 const currentWeekStart = ref(new Date());
@@ -257,6 +259,46 @@ onMounted(() => {
   document.addEventListener('dragenter', handleGlobalDragEnter);
   document.addEventListener('dragleave', handleGlobalDragLeave);
   document.addEventListener('drop', handleGlobalDrop);
+  
+  // Initialize with data from meal prep store if available
+  const mealPreps = mealPrepStore.getAllMealPreps;
+  console.log('MealPlanningCalendar: Loading from mealPrepStore:', mealPreps.length, 'meal preps');
+  
+  // If we weren't provided scheduled meals via props, populate from store
+  if (!props.scheduledMeals || props.scheduledMeals.length === 0) {
+    // Populate scheduled meals from existing meal preps
+    mealPreps.forEach(mealPrep => {
+      // For each meal prep, check if it has a recipe ID
+      if (mealPrep.recipeId) {
+        // Find the recipe in the recipe store
+        const recipe = recipeStore.recipes.find(r => r.id === mealPrep.recipeId);
+        
+        if (recipe) {
+          scheduledMeals.value.push({
+            recipe,
+            date: mealPrep.prepDate,
+            mealType: mealPrep.mealType as 'breakfast' | 'lunch' | 'dinner'
+          });
+        } else {
+          // If recipe is not found, create a placeholder recipe
+          const placeholderRecipe = {
+            id: mealPrep.recipeId,
+            title: mealPrep.name,
+            ingredients: mealPrep.ingredients || [],
+            servings: mealPrep.totalPortions,
+            prepTime: 0,
+            cookTime: 0
+          };
+          
+          scheduledMeals.value.push({
+            recipe: placeholderRecipe as Recipe,
+            date: mealPrep.prepDate,
+            mealType: mealPrep.mealType as 'breakfast' | 'lunch' | 'dinner'
+          });
+        }
+      }
+    });
+  }
 });
 
 onUnmounted(() => {

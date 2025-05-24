@@ -4,12 +4,14 @@
   "description": "Server component for Yes Chef application",  "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node -r tsconfig-paths/register src/server.ts",
-    "dev:full": "cd .. && npm run dev",
     "build": "prisma generate && tsc",
-    "start": "node ../dist/server/server.js",
+    "start": "node dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
@@ -18,7 +20,7 @@
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
     "db:update": "npm run db:generate && npm run db:migrate"
-  },  "dependencies": {
+  },"dependencies": {
     "@prisma/client": "^6.8.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -32,10 +34,15 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/morgan": "^1.9.9",
     "@types/node": "^18.15.11",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^7.3.0",
+    "@typescript-eslint/parser": "^7.3.0",
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
+    "eslint": "^8.57.0",
     "nodemon": "^2.0.22",
     "prisma": "^6.8.2",
+    "supertest": "^6.3.4",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4",

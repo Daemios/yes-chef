@@ -1,24 +1,32 @@
 {
   "name": "yes-chef",
   "version": "1.0.0",
-  "description": "A Vue/Node/Express/TypeScript application",
-  "main": "dist/server/server.js",  "scripts": {
-    "start": "node dist/server/server.js",
+  "description": "A Vue/Node/Express/TypeScript monorepo application",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "cd server && nodemon --watch 'src/**/*.ts' --exec ts-node -r tsconfig-paths/register src/server.ts",
-    "dev:client": "cd client && vite",
-    "build": "npm run build:server && npm run build:client",
-    "build:server": "cd server && tsc",
-    "build:client": "cd client && vite build",
-    "test": "npm run test:server && npm run test:client",
-    "test:server": "cd server && vitest run",
-    "test:client": "cd client && vitest run",    "db": "cd server && npm run db:update",
-    "clean": "rimraf dist",
-    "lint": "eslint . --ext .js,.ts,.vue",
-    "lint:fix": "eslint . --ext .js,.ts,.vue --fix",
-    "test:ports": "node test-port-conflicts.js"
-  },
-  "repository": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test",
+    "test:server": "cd server && npm test",
+    "lint": "npm run lint:client && npm run lint:server",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "lint:fix": "npm run lint:fix:client && npm run lint:fix:server",
+    "lint:fix:client": "cd client && npm run lint:fix",
+    "lint:fix:server": "cd server && npm run lint:fix",
+    "db": "cd server && npm run db:update",
+    "clean": "rimraf dist && rimraf client/dist && rimraf server/dist"
+  },  "repository": {
     "type": "git",
     "url": "git+https://github.com/Daemios/yes-chef.git"
   },
@@ -28,7 +36,8 @@
     "typescript",
     "node",
     "javascript",
-    "fullstack"
+    "fullstack",
+    "monorepo"
   ],
   "author": "",
   "license": "ISC",
@@ -37,37 +46,7 @@
   },
   "homepage": "https://github.com/Daemios/yes-chef#readme",
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.2",
-    "@types/morgan": "^1.9.9",
-    "@types/node": "^22.15.19",
-    "@types/supertest": "^6.0.2",
-    "@typescript-eslint/eslint-plugin": "^7.3.0",
-    "@typescript-eslint/parser": "^7.3.0",
-    "@vitejs/plugin-vue": "^4.5.2",
-    "@vitest/coverage-c8": "^0.33.0",
-    "@vitest/ui": "^0.33.0",
-    "@vue/test-utils": "^2.4.6",
     "concurrently": "^9.1.2",
-    "eslint": "^8.57.0",
-    "eslint-plugin-vue": "^9.24.1",
-    "happy-dom": "^13.5.0",
-    "morgan": "^1.10.0",
-    "nodemon": "^3.1.10",
-    "rimraf": "^6.0.1",
-    "supertest": "^6.3.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "vite": "^5.0.10",
-    "vitest": "^0.33.0"
-  },
-  "dependencies": {
-    "@mdi/font": "^7.4.47",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "pinia": "^3.0.2",
-    "vue": "^3.5.14",
-    "vue-router": "^4.3.1",
-    "vuetify": "^3.8.5"
+    "rimraf": "^6.0.1"
   }
 }

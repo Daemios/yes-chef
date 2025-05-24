@@ -1,0 +1,292 @@
+/**
+ * Meal Plan Repository
+ * Handles operations for meal plans using Prisma
+ */
+
+// Import shared models
+import { MealPlan, MealDay } from '../types/shared-models';
+import { prisma } from '../services/prisma.service';
+import { PrismaClient } from '@prisma/client';
+
+// TypeScript type assertion to ensure we can access these models
+interface ExtendedPrismaClient extends PrismaClient {
+  mealPlan: any;
+  mealDay: any;
+}
+
+// Extend prisma with our type assertion
+const db = prisma as unknown as ExtendedPrismaClient;
+
+/**
+ * Meal Plan Repository class
+ */
+export class MealPlanRepositoryClass {
+  /**
+   * Find all meal plans for a user
+   */
+  async findByUserId(userId: number): Promise<MealPlan[]> {
+    try {
+      const mealPlans = await db.mealPlan.findMany({
+        where: {
+          userId: userId
+        },
+        include: {
+          days: true
+        }
+      });
+
+      return mealPlans as unknown as MealPlan[];
+    } catch (error) {
+      console.error(`Error finding meal plans for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Find meal plan by ID
+   */
+  async findById(id: number): Promise<MealPlan | null> {
+    try {
+      const mealPlan = await db.mealPlan.findUnique({
+        where: {
+          id
+        },
+        include: {
+          days: true
+        }
+      });
+
+      return mealPlan as unknown as MealPlan;
+    } catch (error) {
+      console.error(`Error finding meal plan with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new meal plan
+   */
+  async create(data: Omit<MealPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<MealPlan> {
+    try {
+      // Extract days data to create separately
+      const { days, ...mealPlanData } = data;
+
+      // Create the meal plan
+      const mealPlan = await db.mealPlan.create({
+        data: {
+          name: mealPlanData.name,
+          startDate: new Date(mealPlanData.startDate),
+          endDate: new Date(mealPlanData.endDate),
+          isActive: mealPlanData.isActive ?? true,
+          userId: mealPlanData.userId
+        },
+        include: {
+          days: true
+        }
+      });
+
+      // Create days if provided
+      if (days && days.length > 0) {
+        await this.updateDays(mealPlan.id, days);
+      }
+
+      // Return the created meal plan with days
+      return await this.findById(mealPlan.id) as MealPlan;
+    } catch (error) {
+      console.error(`Error creating meal plan:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing meal plan
+   */
+  async update(id: number, data: Partial<MealPlan>): Promise<MealPlan> {
+    try {
+      // Extract days data to update separately
+      const { days, id: mealPlanId, ...mealPlanData } = data;
+
+      // Update the meal plan
+      const mealPlan = await db.mealPlan.update({
+        where: {
+          id
+        },
+        data: {
+          name: mealPlanData.name,
+          startDate: mealPlanData.startDate ? new Date(mealPlanData.startDate) : undefined,
+          endDate: mealPlanData.endDate ? new Date(mealPlanData.endDate) : undefined,
+          isActive: mealPlanData.isActive
+        },
+        include: {
+          days: true
+        }
+      });
+
+      // Update days if provided
+      if (days && days.length > 0) {
+        await this.updateDays(id, days);
+      }
+
+      // Return the updated meal plan with days
+      const updatedMealPlan = await db.mealPlan.findUnique({
+        where: {
+          id
+        },
+        include: {
+          days: true
+        }
+      });
+
+      return updatedMealPlan as unknown as MealPlan;
+    } catch (error) {
+      console.error(`Error updating meal plan with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Helper method to update days for a meal plan
+   */
+  private async updateDays(mealPlanId: number, days: MealDay[]): Promise<void> {
+    // Delete existing days
+    await db.mealDay.deleteMany({
+      where: {
+        mealPlanId: mealPlanId
+      }
+    });
+
+    // Create new days
+    for (const day of days) {
+      await db.mealDay.create({
+        data: {
+          day: day.day,
+          date: new Date(day.date),
+          breakfast: day.breakfast || '',
+          lunch: day.lunch || '',
+          dinner: day.dinner || '',
+          mealPlanId: mealPlanId
+        }
+      });
+    }
+  }
+
+  /**
+   * Delete a meal plan
+   */
+  async delete(id: number): Promise<void> {
+    try {
+      // Delete all related days first (though this should cascade)
+      await db.mealDay.deleteMany({
+        where: {
+          mealPlanId: id
+        }
+      });
+
+      // Delete the meal plan
+      await db.mealPlan.delete({
+        where: {
+          id
+        }
+      });
+    } catch (error) {
+      console.error(`Error deleting meal plan with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add a recipe to a specific meal slot
+   */
+  async addRecipeToMealSlot(
+    mealPlanId: number,
+    dayIndex: number,
+    mealType: string,
+    recipeId: number
+  ): Promise<MealPlan> {
+    try {
+      // Get the meal plan
+      const mealPlan = await this.findById(mealPlanId);
+      
+      if (!mealPlan) {
+        throw new Error(`Meal plan with ID ${mealPlanId} not found`);
+      }
+      
+      const days = mealPlan.days as any[];
+      
+      if (!days || dayIndex >= days.length) {
+        throw new Error(`Day index ${dayIndex} out of bounds`);
+      }
+      
+      const day = days[dayIndex];
+      
+      // Update the meal type with the recipe ID as string
+      const updateData = {
+        [mealType]: recipeId.toString()
+      };
+
+      // Update the meal day using the actual ID from the database
+      await db.mealDay.update({
+        where: {
+          id: day.id
+        },
+        data: updateData
+      });
+
+      // Return the updated meal plan
+      return await this.findById(mealPlanId) as MealPlan;
+    } catch (error) {
+      console.error(`Error adding recipe to meal slot:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove a recipe from a specific meal slot
+   */
+  async removeRecipeFromMealSlot(
+    mealPlanId: number,
+    dayIndex: number,
+    mealType: string
+  ): Promise<MealPlan> {
+    try {
+      // Get the meal plan
+      const mealPlan = await this.findById(mealPlanId);
+      
+      if (!mealPlan) {
+        throw new Error(`Meal plan with ID ${mealPlanId} not found`);
+      }
+      
+      const days = mealPlan.days as any[];
+      
+      if (!days || dayIndex >= days.length) {
+        throw new Error(`Day index ${dayIndex} out of bounds`);
+      }
+      
+      const day = days[dayIndex];
+      
+      // Set the meal type to empty string
+      const updateData = {
+        [mealType]: ''
+      };
+
+      // Update the meal day
+      await db.mealDay.update({
+        where: {
+          id: day.id
+        },
+        data: updateData
+      });
+
+      // Return the updated meal plan
+      return await this.findById(mealPlanId) as MealPlan;
+    } catch (error) {
+      console.error(`Error removing recipe from meal slot:`, error);
+      throw error;
+    }
+  }
+}
+
+/**
+ * Export a singleton instance of the repository
+ */
+export const MealPlanRepository = new MealPlanRepositoryClass();

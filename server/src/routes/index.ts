@@ -7,6 +7,7 @@ import healthRoutes from './health.routes';
 import apiRoutes from './api.routes';
 import recipeRoutes from './recipe.routes';
 import authRoutes from './auth.routes';
+import mealPlanRoutes from './meal-plan.routes';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ const router = express.Router();
 router.use('/health', healthRoutes);
 router.use('/api', apiRoutes);
 router.use('/api/recipes', recipeRoutes);
+router.use('/api/meal-plans', mealPlanRoutes);
 router.use('/auth', authRoutes);
 
 export default router;

@@ -34,29 +34,42 @@ export class RecipeRepositoryClass {
           }
         },
         ingredients: true
-      }
-    });
-      // Map Prisma types to our ServerRecipe model
+      }    });
+    // Map Prisma types to our ServerRecipe model
     return recipes.map((recipe: any) => {
       let ingredients: string[] = [];
       
-      // Safely parse ingredients from JSON string
+      // Handle ingredients text, which can be in various formats
       if (recipe.ingredientsText) {
-        try {
-          ingredients = JSON.parse(recipe.ingredientsText);
-          // Ensure it's an array
-          if (!Array.isArray(ingredients)) {
-            console.warn(`Recipe ${recipe.id}: ingredientsText is not an array, converting...`);
-            ingredients = [String(ingredients)];
+        // First check if the string starts with [ which would indicate JSON
+        if (typeof recipe.ingredientsText === 'string' && 
+            recipe.ingredientsText.trim().startsWith('[')) {
+          try {
+            ingredients = JSON.parse(recipe.ingredientsText);
+            // Ensure it's an array
+            if (!Array.isArray(ingredients)) {
+              console.warn(`Recipe ${recipe.id}: ingredientsText is not an array, converting...`);
+              ingredients = [String(ingredients)];
+            }
+          } catch (error) {
+            console.warn(`Recipe ${recipe.id}: Failed to parse ingredientsText as JSON, treating as newline-separated list`);
+            // Not valid JSON, continue to next parsing method
           }
-        } catch (error) {
-          console.error(`Recipe ${recipe.id}: Failed to parse ingredientsText:`, recipe.ingredientsText);
-          console.error('Parse error:', error);
-          // Fallback: treat as comma-separated string or single ingredient
-          if (typeof recipe.ingredientsText === 'string') {
-            ingredients = recipe.ingredientsText.split(',').map((item: string) => item.trim());
-          } else {
-            ingredients = [];
+        }
+        
+        // If ingredients is still empty, try treating as newline-separated list
+        if (ingredients.length === 0 && typeof recipe.ingredientsText === 'string') {
+          // First try splitting by newlines
+          if (recipe.ingredientsText.includes('\n')) {
+            ingredients = recipe.ingredientsText.split('\n').map((item: string) => item.trim()).filter(Boolean);
+          } 
+          // If that doesn't work or produces only one item, try commas
+          else if (recipe.ingredientsText.includes(',')) {
+            ingredients = recipe.ingredientsText.split(',').map((item: string) => item.trim()).filter(Boolean);
+          } 
+          // If all else fails, treat as a single ingredient
+          else {
+            ingredients = [recipe.ingredientsText.trim()];
           }
         }
       }

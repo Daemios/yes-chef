@@ -9,6 +9,7 @@ import { Meal } from './meal.model';
  * Represents a single day in the meal plan
  */
 export interface MealDay {
+  id?: number; // Database ID (optional because it's server-generated)
   day: string; // Monday, Tuesday, etc.
   date: string; // ISO format date string
   breakfast: string;

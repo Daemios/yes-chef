@@ -2,11 +2,15 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { MealPrep, PortionDate, MealPrepMode } from '../types/meal-types';
 import { generateRandomColor } from '../services/color.service';
+import * as MealPlanService from '../services/meal-plan.service';
 
 export const useMealPrepStore = defineStore('mealPrep', () => {
   const mealPreps = ref<MealPrep[]>([]);
   const mealColors = ref<Record<string, string>>({});
   const currentPrepMode = ref<MealPrepMode>(MealPrepMode.BALANCED); // Default to balanced mode
+  const isLoading = ref<boolean>(false);
+  const error = ref<string | null>(null);
+  const currentMealPlanId = ref<number | null>(null);
 
   // Get all meal preps
   const getAllMealPreps = computed(() => mealPreps.value);
@@ -83,6 +87,10 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     };
     
     mealPreps.value.push(newMealPrep);
+    
+    // Save to the server
+    saveMealPlansToServer();
+    
     return newMealPrep;
   }
   
@@ -95,6 +103,10 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     if (!portion) return false;
     
     portion.consumed = true;
+    
+    // Save changes to server
+    saveMealPlansToServer();
+    
     return true;
   }
     // Get color for a specific meal by name
@@ -123,6 +135,9 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
   function setPrepMode(mode: MealPrepMode) {
     currentPrepMode.value = mode;
     // Here we could adjust existing meals or apply settings based on the mode
+    
+    // Save changes to server
+    saveMealPlansToServer();
   }
   
   // Get the current prep mode
@@ -132,6 +147,10 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     const index = mealPreps.value.findIndex(m => m.id === mealId);
     if (index !== -1) {
       mealPreps.value.splice(index, 1);
+      
+      // Save changes to server
+      saveMealPlansToServer();
+      
       return true;
     }
     return false;
@@ -174,6 +193,9 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
       });
     }
     
+    // Save changes to server
+    saveMealPlansToServer();
+    
     return true;
   }
   
@@ -181,6 +203,9 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
   function clearAllMealPreps() {
     mealPreps.value = [];
     mealColors.value = {};
+    
+    // Save changes to server (empty state)
+    saveMealPlansToServer();
   }
   
   // Load meal preps from initial data (for testing/demo)
@@ -241,10 +266,215 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
       prepMode: MealPrepMode.HEAVY
     });
   }
-    return {
+  
+  // Save all meal prep data to the server
+  async function saveMealPlansToServer() {
+    try {
+      isLoading.value = true;
+      error.value = null;
+      
+      // Convert our meal preps to the format expected by the API
+      const days = convertMealPrepsToMealPlanDays();
+      console.log('Meal plan days data:', days);
+      
+      const mealPlanData = {
+        name: 'My Meal Plan', // Default name
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+        isActive: true,
+        days
+      };
+      
+      let response;
+      
+      // If we have a current meal plan ID, update it. Otherwise create a new one.
+      if (currentMealPlanId.value) {
+        response = await MealPlanService.updateMealPlan(currentMealPlanId.value, mealPlanData);
+        console.log('Updated existing meal plan:', response);
+      } else {
+        response = await MealPlanService.createMealPlan(mealPlanData);
+        console.log('Created new meal plan:', response);
+        
+        // Store the ID of the created meal plan for future updates
+        if (response && response.id) {
+          currentMealPlanId.value = response.id;
+        }
+      }
+      
+    } catch (err) {
+      console.error('Failed to save meal plans to server:', err);
+      error.value = 'Failed to save meal plans';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  // Load meal plans from the server
+  async function loadMealPlansFromServer() {
+    try {
+      isLoading.value = true;
+      error.value = null;
+      
+      const response = await MealPlanService.getUserMealPlans();
+      console.log('Loaded meal plans from server:', response);
+      
+      if (response && response.length > 0) {
+        // Take the most recent active meal plan
+        const activeMealPlans = response.filter(plan => plan.isActive);
+        const serverMealPlan = activeMealPlans.length > 0 
+          ? activeMealPlans[0] 
+          : response[0];
+        
+        // Store the meal plan ID for future updates
+        currentMealPlanId.value = serverMealPlan.id;
+        
+        // Convert server meal plan to our meal preps format
+        convertMealPlanDaysToMealPreps(serverMealPlan);
+      }
+      
+    } catch (err) {
+      console.error('Failed to load meal plans from server:', err);
+      error.value = 'Failed to load meal plans';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  // Helper function to convert meal preps to meal plan days format for API
+  function convertMealPrepsToMealPlanDays() {
+    console.log('Converting meal preps to meal plan days...');
+    // Create a map to organize meal preps by date
+    const mealsByDate = new Map();
+    
+    // Group all meal preps by their prep date
+    mealPreps.value.forEach(mealPrep => {
+      const date = mealPrep.prepDate;
+      const mealType = mealPrep.mealType;
+      
+      // Log for debugging
+      console.log(`Processing meal: ${mealPrep.name}, type: ${mealType}, date: ${date}`);
+      
+      if (!mealsByDate.has(date)) {
+        // Create a new day entry with this date
+        mealsByDate.set(date, {
+          day: getDayName(new Date(date)),
+          date: date, // The server will parse this string to a Date
+          breakfast: '',
+          lunch: '',
+          dinner: '',
+          breakfastId: null,
+          lunchId: null,
+          dinnerId: null
+        });
+      }
+      
+      // Set the meal in the appropriate slot
+      const dayData = mealsByDate.get(date);
+      if (mealType && ['breakfast', 'lunch', 'dinner'].includes(mealType)) {
+        // If we have a recipeId, set it in the proper ID field
+        // Otherwise set the name in the text field
+        if (mealPrep.recipeId) {
+          dayData[`${mealType}Id`] = mealPrep.recipeId;
+          dayData[mealType] = ''; // Clear the text field when using a recipe
+        } else {
+          dayData[mealType] = mealPrep.name;
+        }
+      }
+    });
+    
+    // Convert map to array
+    return Array.from(mealsByDate.values());
+  }
+  
+  // Helper function to convert meal plan days from API to meal preps format
+  function convertMealPlanDaysToMealPreps(serverMealPlan: any) {
+    // Clear existing meal preps
+    mealPreps.value = [];
+    mealColors.value = {};
+    
+    // Process each day in the meal plan
+    serverMealPlan.days.forEach((day: any) => {
+      // Process breakfast
+      if (day.breakfastRecipe) {
+        // We have a recipe relationship
+        createMealPrepFromSlot(day.breakfastRecipe, day.date, 'breakfast');
+      } else if (day.breakfast) {
+        // We have a text meal name
+        createMealPrepFromSlot(day.breakfast, day.date, 'breakfast');
+      }
+      
+      // Process lunch
+      if (day.lunchRecipe) {
+        // We have a recipe relationship
+        createMealPrepFromSlot(day.lunchRecipe, day.date, 'lunch');
+      } else if (day.lunch) {
+        // We have a text meal name
+        createMealPrepFromSlot(day.lunch, day.date, 'lunch');
+      }
+      
+      // Process dinner
+      if (day.dinnerRecipe) {
+        // We have a recipe relationship
+        createMealPrepFromSlot(day.dinnerRecipe, day.date, 'dinner');
+      } else if (day.dinner) {
+        // We have a text meal name
+        createMealPrepFromSlot(day.dinner, day.date, 'dinner');
+      }
+    });
+  }
+  
+  // Helper function to create a meal prep from a meal plan slot
+  function createMealPrepFromSlot(mealData: any, date: string, mealType: string) {
+    // Check if it's a recipe object, a recipe ID, or just a text name
+    let recipeId: number | undefined = undefined;
+    let name: string;
+    
+    // Check if we have a recipe relation (from the API)
+    const recipeRelationField = `${mealType}Recipe`;
+    const recipeIdField = `${mealType}Id`;
+    
+    // Handle recipe objects returned from the server
+    if (typeof mealData === 'object' && mealData !== null) {
+      recipeId = mealData.id;
+      name = mealData.title;
+    }
+    // Handle meal day with recipeId fields
+    else if (typeof mealData !== 'object' && mealData !== null) {
+      name = mealData;
+      
+      // If it's a numeric string, treat it as a recipe ID
+      if (!isNaN(Number(mealData))) {
+        recipeId = Number(mealData);
+        name = `Recipe #${mealData}`;
+      }
+    } else {
+      name = 'Unnamed Meal';
+    }
+    
+    addMealPrep({
+      name,
+      mealType: mealType as 'breakfast' | 'lunch' | 'dinner',
+      totalPortions: 1, // Default
+      prepDate: date,
+      ingredients: [],
+      recipeId: recipeId,
+      needsPrep: false,
+      isPrepared: false,
+      prepMode: currentPrepMode.value
+    });
+  }
+  
+  // Helper function to get day name from date
+  function getDayName(date: Date): string {
+    return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+  }
+  
+  return {
     mealPreps,
     mealColors,
     currentPrepMode,
+    isLoading,
+    error,
     getAllMealPreps,
     getUpcomingLeftovers,
     addMealPrep,
@@ -256,6 +486,8 @@ export const useMealPrepStore = defineStore('mealPrep', () => {
     loadSampleData,
     getTodaysPrep,
     setPrepMode,
-    getPrepMode
+    getPrepMode,
+    saveMealPlansToServer,
+    loadMealPlansFromServer
   };
 });
