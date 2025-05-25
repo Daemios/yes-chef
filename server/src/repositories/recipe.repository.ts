@@ -6,8 +6,7 @@ import { prisma } from '../services/prisma.service';
 export class RecipeRepositoryClass {
   /**
    * Find all recipes with optional filtering
-   */
-  async findMany(params: {
+   */  async findMany(params: {
     skip?: number;
     take?: number;
     where?: Record<string, unknown>;
@@ -25,15 +24,18 @@ export class RecipeRepositoryClass {
             tag: true
           }
         },
-        ingredients: true
+        ingredients: {
+          include: {
+            ingredient: true
+          }
+        }
       }
     });
   }
 
   /**
    * Find a recipe by ID
-   */
-  async findById(id: number) {
+   */  async findById(id: number) {
     return prisma.recipe.findUnique({
       where: { id },
       include: {
@@ -43,7 +45,11 @@ export class RecipeRepositoryClass {
             tag: true
           }
         },
-        ingredients: true
+        ingredients: {
+          include: {
+            ingredient: true
+          }
+        }
       }
     });
   }
@@ -77,7 +83,15 @@ export class RecipeRepositoryClass {
         isPublished: data.isPublished,
         user: data.userId ? { connect: { id: data.userId } } : undefined,
         ingredients: data.ingredients ? {
-          create: data.ingredients
+          create: data.ingredients.map(ing => ({
+            amount: ing.amount,
+            unit: ing.unit,
+            substitute: ing.substitute,
+            isOptional: ing.isOptional,
+            ingredient: {
+              connect: { name: ing.name }
+            }
+          }))
         } : undefined,
         tags: data.tagIds ? {
           create: data.tagIds.map(tagId => ({
@@ -127,7 +141,15 @@ export class RecipeRepositoryClass {
         // Handle ingredients updates if present
         ingredients: data.ingredients ? {
           deleteMany: {},
-          create: data.ingredients
+          create: data.ingredients.map(ing => ({
+            amount: ing.amount,
+            unit: ing.unit,
+            substitute: ing.substitute,
+            isOptional: ing.isOptional,
+            ingredient: {
+              connect: { name: ing.name }
+            }
+          }))
         } : undefined,
         // Handle tag updates if present
         tags: data.tagIds ? {

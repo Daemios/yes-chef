@@ -20,7 +20,7 @@ const discoverServerPort = async (): Promise<number> => {
   
   for (const port of commonPorts) {
     try {
-      const response = await fetch(`http://localhost:${port}/health`, {
+      const response = await fetch(`http://localhost:${port}/api/hello`, {
         method: 'GET',
         signal: AbortSignal.timeout(1000) // 1 second timeout
       });

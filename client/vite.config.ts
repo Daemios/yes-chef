@@ -52,11 +52,6 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '')
-      },
-      '/health': {
-        target: `http://localhost:${serverPort}`,
-        changeOrigin: true,
-        secure: false
       }
     }
   }

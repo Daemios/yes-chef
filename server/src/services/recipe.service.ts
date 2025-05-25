@@ -47,11 +47,13 @@ export class RecipeServiceClass {
    */
   private transformRecipe(prismaRecipe: any): Recipe {
     const ingredients: string[] = prismaRecipe.ingredients.map((ingredient: any) => {
-      let ingredientText = ingredient.name;
+      // Use ingredient.ingredient.name for the name, since this is the related Ingredient
+      const name = ingredient.ingredient?.name || ingredient.name || '';
+      let ingredientText = name;
       if (ingredient.amount) {
-        ingredientText = `${ingredient.amount}${ingredient.unit ? ' ' + ingredient.unit : ''} ${ingredient.name}`;
+        ingredientText = `${ingredient.amount}${ingredient.unit ? ' ' + ingredient.unit : ''} ${name}`.trim();
       }
-      return ingredientText;
+      return ingredientText.trim();
     });
     
     return {

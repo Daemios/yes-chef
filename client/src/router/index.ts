@@ -57,7 +57,8 @@ const routes: Array<RouteRecordRaw> = [  // Public routes
     name: 'meals',
     component: RecipesView,
     meta: {
-      title: 'Meal Planning - Yes Chef'
+      title: 'Meal Planning - Yes Chef',
+      requiresAuth: true
     }
   },
   {
@@ -128,7 +129,7 @@ const routes: Array<RouteRecordRaw> = [  // Public routes
 // Create router instance
 const router = createRouter({
   // Use base URL from Vite environment variables or fallback to root
-  history: createWebHistory(import.meta.env.BASE_URL || '/'),
+  history: createWebHistory('/'), // Use root as fallback, BASE_URL is not typed
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

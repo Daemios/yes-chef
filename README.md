@@ -165,7 +165,6 @@ The server will automatically find the next available port, and the client will 
 
 ## 🔄 API Endpoints
 
-- `GET /health`: Health check endpoint (returns server status)
 - `GET /api/hello`: Sample API endpoint (returns greeting message)
 
 ## 📋 License

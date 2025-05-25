@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Recipe {
-  id           Int             @id @default(autoincrement())
+  id           Int                    @id @default(autoincrement())
   title        String
-  description  String?         @db.Text
-  instructions String          @db.Text
-  prepTime     Int?            @default(15)
-  cookTime     Int?            @default(30)
-  servings     Int?            @default(4)
-  difficulty   String?         @default("medium")
+  description  String?                @db.Text
+  instructions String                 @db.Text
+  prepTime     Int?                   @default(15)
+  cookTime     Int?                   @default(30)
+  servings     Int?                   @default(4)
+  difficulty   String?                @default("medium")
   imageUrl     String?
-  isPublished  Boolean         @default(true)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @default(now()) @updatedAt
+  isPublished  Boolean                @default(true)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @default(now()) @updatedAt
   userId       Int?
-  ingredients  Ingredient[]
-  user         User?           @relation(fields: [userId], references: [id])
+  ingredients  IngredientsOnRecipes[]
+  user         User?                  @relation(fields: [userId], references: [id])
   tags         TagsOnRecipes[]
   meals        Meal[]
 
@@ -31,19 +31,31 @@ model Recipe {
 }
 
 model Ingredient {
-  id         Int      @id @default(autoincrement())
-  name       String
-  amount     String?
-  unit       String?
-  substitute String?
-  isOptional Boolean  @default(false)
-  recipeId   Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id        Int                    @id @default(autoincrement())
+  name      String                 @unique
+  calories  Float? // Calories per unit (e.g., per 100g, per piece, etc.)
+  unit      String?
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @default(now()) @updatedAt
+  recipes   IngredientsOnRecipes[]
 
-  @@index([recipeId])
   @@index([name])
+}
+
+model IngredientsOnRecipes {
+  recipeId     Int
+  ingredientId Int
+  amount       String?
+  unit         String?
+  substitute   String?
+  isOptional   Boolean @default(false)
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, ingredientId])
+  @@index([recipeId])
+  @@index([ingredientId])
 }
 
 model User {
