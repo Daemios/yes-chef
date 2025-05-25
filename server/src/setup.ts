@@ -1,7 +1,3 @@
-/**
- * Test setup file for Vitest
- */
-
 // Global setup for tests
 export async function setup() {
   console.log('Running test setup...');

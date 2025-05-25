@@ -1,8 +1,3 @@
-/**
- * Recipe Model
- * Represents a recipe in the application
- */
-
 // Import the User type for references
 import { User } from './user.model';
 
@@ -43,18 +38,18 @@ export interface NutritionInfo {
 export interface BaseRecipe {
   id: number;
   title: string;
-  description?: string;
-  ingredients: string[]; // For backward compatibility - will be handled by repository
-  ingredientsText?: string; // Raw JSON string from database
+  description: string | null;
   instructions: string;
-  prepTime?: number;
-  cookTime?: number;
-  servings?: number;
-  imageUrl?: string;
-  userId?: number;
+  prepTime: number | null;
+  cookTime: number | null;
+  servings: number | null;
+  difficulty: string | null;
+  imageUrl: string | null;
+  isPublished: boolean;
+  userId: number | null;
   user?: User;
   tags?: RecipeTag[];
-  nutritionInfo?: NutritionInfo;
+  ingredients?: any[]; // Will be Ingredient[] when populated
 }
 
 /**
@@ -76,5 +71,5 @@ export interface ServerRecipe extends BaseRecipe {
 /**
  * DTOs for creating and updating recipes
  */
-export type CreateRecipeDTO = Omit<BaseRecipe, 'id'>;
+export type CreateRecipeDTO = Omit<BaseRecipe, 'id' | 'user' | 'tags' | 'ingredients'>;
 export type UpdateRecipeDTO = Partial<CreateRecipeDTO>;

@@ -1,8 +1,3 @@
-/**
- * Auth Controller
- * Handles authentication requests (register, login, etc.)
- */
-
 import { Request, Response } from 'express';
 import { UserRepository } from '../repositories/user.repository';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth.utils';

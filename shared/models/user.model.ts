@@ -1,17 +1,17 @@
-/**
- * User Model
- * Represents a user in the application
- */
-
 export interface User {
   id: number;
   email: string;
-  name?: string;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
+  name: string | null;
+  password: string;
+  role: string;
+  isActive: boolean;
+  lastLoginAt: Date | null;
+  profileImage: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface UserProfile extends User {
+export interface UserProfile extends Omit<User, 'password'> {
   preferences?: {
     dietaryRestrictions?: string[];
     allergies?: string[];

@@ -1,9 +1,4 @@
 /**
- * Shopping Model
- * Represents shopping lists and shopping items
- */
-
-/**
  * Shopping item categories for organizing the shopping list
  */
 export enum ShoppingCategory {
@@ -47,11 +42,9 @@ export interface ShoppingSection {
  * Represents a complete shopping list
  */
 export interface ShoppingList {
-  id: number | string;
-  userId: number;
+  id: number | string;  userId: number;
   name: string;
   sections: ShoppingSection[];
-  mealPlanId?: number | string; // Optional reference to the meal plan this list is for
   createdAt: string | Date;
   updatedAt: string | Date;
   isComplete: boolean;

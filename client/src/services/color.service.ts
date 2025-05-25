@@ -1,11 +1,4 @@
-/**
- * Color utility service for meal planning
- */
 
-/**
- * Generate a random visually distinct color in HSL format
- * Using HSL makes it easier to ensure colors are visually distinct
- */
 export const generateRandomColor = (): string => {
   // Generate a random hue (0-360)
   const hue = Math.floor(Math.random() * 360);

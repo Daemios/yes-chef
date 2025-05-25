@@ -1,8 +1,3 @@
-/**
- * User Repository
- * Simple database operations for users
- */
-
 import { prisma } from '../services/prisma.service';
 
 interface User {
@@ -10,6 +5,10 @@ interface User {
   email: string;
   name: string | null;
   password: string;
+  role: string;
+  isActive: boolean;
+  lastLoginAt: Date | null;
+  profileImage: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -141,7 +141,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, nextTick, PropType } from 'vue';
-import { useMealPrepStore } from '../../stores/meal-prep.store';
+import { useMealStore } from '../../stores/meal.store';
 import UpcomingMeal from './UpcomingMeal.vue';
 
 interface MealDay {
@@ -177,9 +177,8 @@ export default defineComponent({
     
     // Cache for meal colors to maintain consistency
     const mealColorCache = ref<Record<string, string>>({});
-    
-    // Get the meal prep store
-    const mealPrepStore = useMealPrepStore();
+      // Get the meal store
+    const mealStore = useMealStore();
 
     // Helper function to get color for a meal (with caching)
     const getMealColor = (mealName: string): string => {
@@ -325,8 +324,7 @@ export default defineComponent({
     // Helper function to check if any of the current day's breakfast meals need today section reference
     const hasCurrentDayBreakfast = (): boolean => {
       return sortedMealPlan.value.some(day => isToday(day.day));
-    };
-      return {
+    };      return {
       sortedMealPlan,
       isToday,
       getFormattedDate,
@@ -337,7 +335,7 @@ export default defineComponent({
       mealIsPrepared,
       getMealLeftovers,
       hasCurrentDayBreakfast,
-      mealPrepStore
+      mealStore
     };
   }
 });

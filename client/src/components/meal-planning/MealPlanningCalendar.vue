@@ -47,9 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useMealPrepStore } from '../../stores/meal-prep.store';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRecipeStore } from '../../stores/recipe.store';
+import { useAuthStore } from '../../stores/auth';
 import { Recipe } from '../../types/recipe';
 import CalendarDay from './CalendarDay.vue';
 
@@ -72,8 +72,8 @@ const emit = defineEmits<{
 }>();
 
 // Stores
-const mealPrepStore = useMealPrepStore();
 const recipeStore = useRecipeStore();
+const authStore = useAuthStore();
 
 // State
 const currentWeekStart = ref(new Date());
@@ -170,17 +170,6 @@ const handleScheduleMeal = (recipe: Recipe, date: string, mealType: string) => {
     date,
     mealType: mealType as 'breakfast' | 'lunch' | 'dinner'
   });
-  // Add to meal prep store
-  const mealPrep = mealPrepStore.addMealPrep({
-    name: recipe.title,
-    mealType: mealType as 'breakfast' | 'lunch' | 'dinner',
-    prepDate: date,
-    totalPortions: recipe.servings || 1,
-    ingredients: recipe.ingredients,
-    recipeId: recipe.id
-  });
-  
-  console.log(`Added meal prep with ID: ${mealPrep.id}`);
   
   emit('mealScheduled', recipe, date, mealType);
 };
@@ -220,16 +209,6 @@ const handleUpdateServings = (date: string, mealType: string, servings: number) 
     scheduledMeals.value[mealIndex].recipe.servings = servings;
     
     // Find meal prep in store to update
-    const mealPreps = mealPrepStore.getAllMealPreps;
-    const matchingMealPrep = mealPreps.find(
-      mp => mp.prepDate === date && mp.mealType === mealType
-    );
-    
-    if (matchingMealPrep) {
-      // Update meal prep in store with new number of servings/portions
-      mealPrepStore.updateMealPrepServings(matchingMealPrep.id, servings);
-    }
-    
     emit('servingsUpdated', date, mealType, servings);
   }
 };
@@ -250,56 +229,31 @@ const handleGlobalDrop = () => {
   isDragActive.value = false;
 };
 
-// Lifecycle
-onMounted(() => {
+// Function to populate calendar from meal preps
+const loadMealsFromStore = () => {
+  console.log('MealPlanningCalendar: Loading meals from store');
+  console.log('MealPlanningCalendar: Current calendar shows dates:', weekDays.value.map(day => day.dateString));
+  
+  // Clear existing scheduled meals
+  scheduledMeals.value = [];
+  
+  console.log('MealPlanningCalendar: Final scheduledMeals array:', scheduledMeals.value);
+};
+
+onMounted(async () => {
   // Set to start of current period (4 days)
   currentWeekStart.value = getStartOfPeriod(new Date());
   
   // Add global drag event listeners
   document.addEventListener('dragenter', handleGlobalDragEnter);
   document.addEventListener('dragleave', handleGlobalDragLeave);
-  document.addEventListener('drop', handleGlobalDrop);
-  
-  // Initialize with data from meal prep store if available
-  const mealPreps = mealPrepStore.getAllMealPreps;
-  console.log('MealPlanningCalendar: Loading from mealPrepStore:', mealPreps.length, 'meal preps');
-  
-  // If we weren't provided scheduled meals via props, populate from store
-  if (!props.scheduledMeals || props.scheduledMeals.length === 0) {
-    // Populate scheduled meals from existing meal preps
-    mealPreps.forEach(mealPrep => {
-      // For each meal prep, check if it has a recipe ID
-      if (mealPrep.recipeId) {
-        // Find the recipe in the recipe store
-        const recipe = recipeStore.recipes.find(r => r.id === mealPrep.recipeId);
-        
-        if (recipe) {
-          scheduledMeals.value.push({
-            recipe,
-            date: mealPrep.prepDate,
-            mealType: mealPrep.mealType as 'breakfast' | 'lunch' | 'dinner'
-          });
-        } else {
-          // If recipe is not found, create a placeholder recipe
-          const placeholderRecipe = {
-            id: mealPrep.recipeId,
-            title: mealPrep.name,
-            ingredients: mealPrep.ingredients || [],
-            servings: mealPrep.totalPortions,
-            prepTime: 0,
-            cookTime: 0
-          };
-          
-          scheduledMeals.value.push({
-            recipe: placeholderRecipe as Recipe,
-            date: mealPrep.prepDate,
-            mealType: mealPrep.mealType as 'breakfast' | 'lunch' | 'dinner'
-          });
-        }
-      }
-    });
+  document.addEventListener('drop', handleGlobalDrop);    // Load meal plans from server if they're not already loaded
+  if (authStore.isAuthenticated) {
+
   }
-});
+  
+  // Initialize with data from meal prep store
+  loadMealsFromStore();});
 
 onUnmounted(() => {
   // Remove global drag event listeners

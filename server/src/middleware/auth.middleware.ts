@@ -1,8 +1,3 @@
-/**
- * Auth Middleware
- * Protects routes by checking if user has valid token
- */
-
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/auth.utils';
 

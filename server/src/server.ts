@@ -1,6 +1,3 @@
-/**
- * Server entry point
- */
 // Register module aliases before importing other modules
 import './config/module-alias';
 

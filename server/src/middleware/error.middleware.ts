@@ -1,7 +1,3 @@
-/**
- * Error handling middleware
- * Provides centralized error handling for Express routes
- */
 import { Request, Response, NextFunction } from 'express';
 
 // Define custom error interface

@@ -155,3 +155,39 @@ export const getCurrentUser = async (token: string): Promise<UserResponse> => {
     throw error;
   }
 };
+
+/**
+ * Meal API calls
+ */
+export const getMeals = async () => {
+  const response = await enhancedFetch(`${API_BASE}/meals`);
+  if (!response.ok) throw new Error('Failed to fetch meals');
+  return await response.json();
+};
+
+export const createMeal = async (mealData) => {
+  const response = await enhancedFetch(`${API_BASE}/meals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(mealData),
+  });
+  if (!response.ok) throw new Error('Failed to create meal');
+  return await response.json();
+};
+
+export const updateMeal = async (id, mealData) => {
+  const response = await enhancedFetch(`${API_BASE}/meals/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(mealData),
+  });
+  if (!response.ok) throw new Error('Failed to update meal');
+  return await response.json();
+};
+
+export const deleteMeal = async (id) => {
+  const response = await enhancedFetch(`${API_BASE}/meals/${id}`, {
+    method: 'DELETE' });
+  if (!response.ok) throw new Error('Failed to delete meal');
+  return await response.json();
+};

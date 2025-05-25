@@ -1,8 +1,3 @@
-/**
- * Test Utilities
- * Helper functions for testing authentication and API endpoints
- */
-
 import { generateToken } from './auth.utils';
 import { UserRepository } from '../repositories/user.repository';
 import { hashPassword } from './auth.utils';
@@ -113,42 +108,6 @@ export const testRecipes = {
   invalidRecipe: {
     // Missing required fields
     description: 'Invalid recipe without title'
-  }
-};
-
-/**
- * Sample meal plan data for testing
- */
-export const testMealPlans = {
-  validMealPlan: {
-    name: 'Test Meal Plan',
-    startDate: new Date().toISOString(),
-    endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(),
-    isActive: true,
-    days: [
-      {
-        day: 'Monday',
-        date: new Date().toISOString().split('T')[0],
-        breakfast: '',
-        lunch: '',
-        dinner: ''
-      },
-      {
-        day: 'Tuesday',
-        date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
-        breakfast: '',
-        lunch: '',
-        dinner: ''
-      }
-    ]
-  },
-  updateMealPlan: {
-    name: 'Updated Meal Plan',
-    isActive: false
-  },
-  invalidMealPlan: {
-    // Missing required fields
-    days: []
   }
 };
 

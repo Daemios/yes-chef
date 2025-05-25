@@ -1,7 +1,3 @@
-/**
- * API Controllers
- * Contains business logic for API routes
- */
 import { Request, Response } from 'express';
 
 /**

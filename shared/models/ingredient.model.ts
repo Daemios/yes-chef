@@ -1,15 +1,13 @@
 /**
- * Ingredient Model
- * Represents an ingredient in a recipe
- */
-
-/**
  * Base Ingredient interface
  */
 export interface BaseIngredient {
   id: number;
   name: string;
-  amount?: string;
+  amount: string | null;
+  unit: string | null;
+  substitute: string | null;
+  isOptional: boolean;
   recipeId: number;
 }
 

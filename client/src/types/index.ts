@@ -14,7 +14,6 @@ export interface ApiResponse<T = any> {
 // Export all types
 export * from './recipe';
 export * from './user';
-export * from './meal-prep';
 
 // We also have shared models for MealPlan and Shopping
 // These can be imported directly from @shared/models

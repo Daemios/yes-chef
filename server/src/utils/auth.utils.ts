@@ -1,8 +1,3 @@
-/**
- * Auth Utilities
- * Simple helper functions for authentication
- */
-
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authConfig } from '../config/auth.config';

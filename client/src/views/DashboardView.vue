@@ -49,7 +49,7 @@ import TaskCalendar from '@/components/dashboard/TaskCalendar.vue';
 import MealPlan from '@/components/dashboard/MealPlan.vue';
 import NutritionOverview from '@/components/dashboard/NutritionOverview.vue';
 import ShoppingInsights from '@/components/dashboard/ShoppingInsights.vue';
-import { useMealPrepStore } from '@/stores/meal-prep.store';
+import { useMealStore } from '@/stores/meal.store';
 
 export default defineComponent({
   name: 'DashboardView',
@@ -89,8 +89,7 @@ export default defineComponent({
       
       // Format as "May 20"
       return `${date.toLocaleString('default', { month: 'short' })} ${date.getDate()}`;
-    };
-      // Sort meal plan to have today's meal first
+    };      // Sort meal plan to have today's meal first
     const sortedMealPlan = computed(() => {
       const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
       const today = new Date();
@@ -104,63 +103,68 @@ export default defineComponent({
       ];
       
       // Sort the meal plan based on the reordered days
-      const sorted = [...mealPlan].sort((a, b) => {
+      const sorted = [...mealPlan.value].sort((a, b) => {
         return reorderedDays.indexOf(a.day) - reorderedDays.indexOf(b.day);
       });
       
       // Only return today and the next two days (total of 3 days)
       return sorted.slice(0, 3);
     });
-    
-    // References for DOM elements
+      // References for DOM elements
     const mealList = ref(null);
-    const todaySection = ref(null);
-      // Initialize the meal prep store and scroll to today's meal
-    const mealPrepStore = useMealPrepStore();
-    
-    onMounted(() => {
-      // Load sample meal prep data for demonstration
-      mealPrepStore.loadSampleData();
+    const todaySection = ref<HTMLElement[]>([]);    // Initialize the meal store
+    const mealStore = useMealStore();      onMounted(async () => {
+      // Load real meal data from the server
+      await mealStore.loadMeals();
       
       nextTick(() => {
         if (todaySection.value && todaySection.value[0]) {
           todaySection.value[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
+    });    // Get meal plan data from store instead of hardcoded values
+    const mealPlan = computed(() => {
+      // Convert meals to the format expected by the dashboard
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const mealsByDay: Record<string, any> = {};
+      
+      // Initialize each day
+      dayNames.forEach(day => {
+        mealsByDay[day] = {
+          day,
+          breakfast: '',
+          lunch: '',
+          dinner: ''
+        };
+      });
+      
+      // Get meals from store and organize by day and meal type
+      mealStore.meals.forEach(meal => {
+        const mealDate = meal.date instanceof Date 
+          ? meal.date 
+          : new Date(meal.date);
+        const dayName = dayNames[mealDate.getDay()];
+        
+        if (mealsByDay[dayName] && meal.mealType) {
+          // Get recipe name if available, otherwise use a generic name
+          const mealName = meal.recipe?.title || `Meal ${meal.id}`;
+          
+          // If there's already a meal for this type, append it; otherwise set it
+          if (mealsByDay[dayName][meal.mealType]) {
+            mealsByDay[dayName][meal.mealType] += `, ${mealName}`;
+          } else {
+            mealsByDay[dayName][meal.mealType] = mealName;
+          }
+        }
+      });
+      
+      // Return only days that have meals, or fallback to empty array
+      const daysWithMeals = Object.values(mealsByDay).filter(day => 
+        day.breakfast || day.lunch || day.dinner
+      );
+      
+      return daysWithMeals.length > 0 ? daysWithMeals : [];
     });
-
-    const mealPlan = [
-      {
-        day: 'Monday',
-        breakfast: 'Greek Yogurt with Berries',
-        lunch: 'Quinoa Salad with Avocado',
-        dinner: 'Grilled Salmon with Roasted Vegetables'
-      },
-      {
-        day: 'Tuesday',
-        breakfast: 'Avocado Toast with Eggs',
-        lunch: 'Chicken Caesar Wrap',
-        dinner: 'Vegetable Stir Fry with Tofu'
-      },
-      {
-        day: 'Wednesday',
-        breakfast: 'Smoothie Bowl',
-        lunch: 'Mediterranean Hummus Bowl',
-        dinner: 'Turkey Meatballs with Pasta'
-      },
-      {
-        day: 'Thursday',
-        breakfast: 'Oatmeal with Banana',
-        lunch: 'Tuna Salad Sandwich',
-        dinner: 'Sheet Pan Chicken with Vegetables'
-      },
-      {
-        day: 'Friday',
-        breakfast: 'Breakfast Burrito',
-        lunch: 'Lentil Soup with Bread',
-        dinner: 'Homemade Pizza Night'
-      }
-    ];
     
     const macros = [
       { name: 'Protein', value: 65, color: 'primary' },
@@ -198,7 +202,6 @@ export default defineComponent({
       }
     ];    // Generate calendar meal items from the meal plan
     const calendarMeals = computed(() => {
-      const mealPrepStore = useMealPrepStore();
       const meals: { 
         id?: string; 
         name: string; 
@@ -209,7 +212,7 @@ export default defineComponent({
         isLeftover?: boolean;
       }[] = [];
       
-      mealPlan.forEach(day => {
+      mealPlan.value.forEach(day => {
         const dateObj = new Date();
         const today = new Date();
         const dayIndex = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day.day);
@@ -224,44 +227,40 @@ export default defineComponent({
         
         // Format the date as YYYY-MM-DD
         const formattedDate = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
-        
-        // Add breakfast, lunch, and dinner as separate items with colors
+          // Add breakfast, lunch, and dinner as separate items with simple colors
         if (day.breakfast) {
-          const mealColor = mealPrepStore.getMealColorByName(day.breakfast);
           meals.push({
             id: `breakfast-${formattedDate}`,
             name: day.breakfast,
             type: 'breakfast',
             date: formattedDate,
-            color: mealColor,
-            portionNumber: 2, // For this demo, assume these are leftover portions 
-            isLeftover: true  // Show all meals as leftovers for demonstration
+            color: '#FF9800', // Orange for breakfast
+            portionNumber: 1,
+            isLeftover: false
           });
         }
         
         if (day.lunch) {
-          const mealColor = mealPrepStore.getMealColorByName(day.lunch);
           meals.push({
             id: `lunch-${formattedDate}`,
             name: day.lunch,
             type: 'lunch',
             date: formattedDate,
-            color: mealColor,
-            portionNumber: 2, // For this demo, assume these are leftover portions
-            isLeftover: true  // Show all meals as leftovers for demonstration
+            color: '#2196F3', // Blue for lunch
+            portionNumber: 1,
+            isLeftover: false
           });
         }
         
         if (day.dinner) {
-          const mealColor = mealPrepStore.getMealColorByName(day.dinner);
           meals.push({
             id: `dinner-${formattedDate}`,
             name: day.dinner,
             type: 'dinner',
             date: formattedDate,
-            color: mealColor,
-            portionNumber: 2, // For this demo, assume these are leftover portions
-            isLeftover: true  // Show all meals as leftovers for demonstration
+            color: '#9C27B0', // Purple for dinner
+            portionNumber: 1,
+            isLeftover: false
           });
         }
       });

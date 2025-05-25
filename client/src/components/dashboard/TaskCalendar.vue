@@ -200,8 +200,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, PropType } from 'vue';
-import { useMealPrepStore } from '@/stores/meal-prep.store';
-import { MealPrep, CalendarMeal } from '@/types/meal-prep';
+import { useMealStore } from '@/stores/meal.store';
+import { Meal } from '@/types/meal-types';
 
 interface Task {
   name: string;
@@ -381,26 +381,26 @@ export default defineComponent({
       const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       return props.mealPlanItems.filter(meal => meal.date === dateStr);
     };
-    
-    // Get meals that need prep today from the meal prep store
-    const mealPrepStore = useMealPrepStore();
+      // Get meals that need prep today from the meal store
+    const mealStore = useMealStore();
     
     // Function to get meals that need prep today
     const getTodaysPrep = computed(() => {
-      // Get meals directly from the meal prep store that need preparation today
-      const todaysPrepMeals = mealPrepStore.getTodaysPrep();
+      // Get today's meals from the meal store
+      const today = new Date().toISOString().split('T')[0];
+      const todaysMeals = mealStore.getMealsForDate(today).value;
       
-      // Format them for display
-      return todaysPrepMeals.map(meal => ({
-        id: meal.id,
-        name: meal.name,
+      // Format them for display (simplified version)
+      return todaysMeals.map(meal => ({
+        id: meal.id.toString(),
+        name: meal.recipe?.title || `Meal ${meal.id}`,
         type: meal.mealType || 'meal',
-        date: meal.prepDate,
-        color: meal.color,
-        portionNumber: meal.totalPortions,
+        date: today,
+        color: '#2196F3', // Default blue color
+        portionNumber: meal.servings,
         needsPrep: true,
         isPrepared: false,
-        prepMode: meal.prepMode
+        prepMode: 'balanced'
       }));
     });
     
@@ -431,33 +431,12 @@ export default defineComponent({
       monthNames,
       currentMonth,
       currentYear,
-      currentDay,
-      firstDayOfMonth,
-      daysInMonth,
-      monthYearText,
-      prevMonth,
-      nextMonth,      hasItemsOnDay,
-      hasTasksOnDay,
-      hasRemindersOnDay,
-      hasMealsOnDay,
-      hasLeftoverMealsOnDay,
-      getLeftoverMealsForDay,
-      hasAnyItemOnDay,
-      getTasksForDay,
-      getRemindersForDay,
-      getMealsForDay,
       getMealTypeIcon,
       getMealTypeColor,
-      isCurrentDay,
-      showDayDetails,
-      selectedDay,
-      openDayDetails,
-      activeTab,      getTodaysTasks,
-      getTodaysReminders,
-      getTodaysMeals,
       getTodaysPrep,
       hasPrepsToday,
-      mealPrepStore
+      selectedDay,
+      getMealsForDay
     };
   }
 });

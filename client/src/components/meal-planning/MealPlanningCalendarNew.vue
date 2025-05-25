@@ -49,7 +49,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useMealPrepStore } from '../../stores/meal-prep.store';
 import { Recipe } from '../../types/recipe';
 import CalendarDay from './CalendarDay.vue';
 
@@ -68,9 +67,6 @@ const emit = defineEmits<{
   mealScheduled: [recipe: Recipe, date: string, mealType: string];
   mealRemoved: [date: string, mealType: string];
 }>();
-
-// Stores
-const mealPrepStore = useMealPrepStore();
 
 // State
 const currentWeekStart = ref(new Date());
@@ -154,16 +150,6 @@ const handleScheduleMeal = (recipe: Recipe, date: string, mealType: string) => {
     recipe,
     date,
     mealType: mealType as 'breakfast' | 'lunch' | 'dinner'
-  });
-  
-  // Add to meal prep store
-  mealPrepStore.addMealPrep({
-    name: recipe.title,
-    mealType: mealType as 'breakfast' | 'lunch' | 'dinner',
-    prepDate: date,
-    totalPortions: recipe.servings || 1,
-    ingredients: recipe.ingredients,
-    recipeId: recipe.id
   });
   
   emit('mealScheduled', recipe, date, mealType);

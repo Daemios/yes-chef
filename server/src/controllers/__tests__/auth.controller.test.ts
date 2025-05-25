@@ -1,8 +1,3 @@
-/**
- * Auth Controller Tests
- * Comprehensive tests for authentication endpoints
- */
-
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import app from '../../app';

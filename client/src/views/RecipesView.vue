@@ -114,11 +114,9 @@
         </div>
       </div>
     </v-container>    <!-- Meal Planning Mode -->
-    <v-container fluid class="py-6" v-else-if="currentMode === 'planning'">
-      <v-row>
+    <v-container fluid class="py-6" v-else-if="currentMode === 'planning'">      <v-row>
         <!-- Calendar Column -->
         <v-col cols="12" lg="8">          <meal-planning-calendar
-            :scheduled-meals="scheduledMeals"
             @meal-scheduled="handleMealScheduled"
             @meal-removed="handleMealRemoved"
             @slot-clicked="handleSlotClicked"
@@ -362,7 +360,6 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useRecipeStore } from '../stores/recipe.store';
 import { useAuthStore } from '../stores/auth';
-import { useMealPrepStore } from '../stores/meal-prep.store';
 import { Recipe } from '../types/recipe';
 import RecipeCard from '../components/recipes/RecipeCard.vue';
 import HorizontalRecipeCard from '../components/recipes/HorizontalRecipeCard.vue';
@@ -373,7 +370,6 @@ import AvailableRecipesList from '../components/recipes/AvailableRecipesList.vue
 // Stores
 const recipeStore = useRecipeStore();
 const authStore = useAuthStore();
-const mealPrepStore = useMealPrepStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -604,15 +600,6 @@ const closeRecipeModal = () => {
 
 const confirmScheduleRecipe = () => {
   if (selectedRecipe.value && selectedDate.value && selectedMealType.value) {
-    // Add recipe to meal prep schedule
-    mealPrepStore.addMealPrep({
-      name: selectedRecipe.value.title,
-      totalPortions: selectedRecipe.value.servings || 1,
-      prepDate: selectedDate.value,
-      mealType: selectedMealType.value as 'breakfast' | 'lunch' | 'dinner',
-      recipeId: selectedRecipe.value.id,
-      ingredients: selectedRecipe.value.ingredients
-    });
 
     // Show success message
     successMessage.value = `"${selectedRecipe.value.title}" has been scheduled for ${selectedMealType.value} on ${new Date(selectedDate.value).toLocaleDateString()}`;
@@ -655,40 +642,7 @@ const handleSelectRecipeFromDialog = (recipe: Recipe) => {
 
 const handleMealRemoved = (date: string, mealType: string) => {
   console.log(`Removing meal at ${date} for ${mealType}`);
-  
-  // Remove from scheduled meals array
-  const index = scheduledMeals.value.findIndex(
-    meal => meal.date === date && meal.mealType === mealType
-  );
-  
-  console.log(`Found meal at index: ${index}`);
-  
-  if (index > -1) {
-    const removedMeal = scheduledMeals.value.splice(index, 1)[0];
-    console.log(`Removed meal from array: ${removedMeal.recipe.title}`);
     
-    // Find and remove the meal from MealPrepStore
-    const mealPreps = mealPrepStore.getAllMealPreps;
-    console.log(`Total meal preps in store: ${mealPreps.length}`);
-    
-    // Get all matching meal preps (might be multiple with same criteria)
-    const matchingMealPreps = mealPreps.filter(
-      mp => mp.prepDate === date && mp.mealType === mealType
-    );
-    
-    console.log(`Found ${matchingMealPreps.length} matching meal preps`);
-    
-    // Remove all matching meal preps
-    matchingMealPreps.forEach(mealPrep => {
-      console.log(`Removing mealPrep ID: ${mealPrep.id}`);
-      mealPrepStore.deleteMealPrep(mealPrep.id);
-    });
-    
-    successMessage.value = `"${removedMeal.recipe.title}" removed from ${mealType} on ${new Date(date).toLocaleDateString()}`;
-    showSuccessMessage.value = true;
-  } else {
-    console.log(`No meal found to remove for ${date} - ${mealType}`);
-  }
 };
 
 const loadMorePlanningRecipes = () => {
@@ -699,16 +653,6 @@ const loadMorePlanningRecipes = () => {
 const handleServingsUpdated = (date: string, mealType: string, servings: number) => {
   console.log(`RecipesView: Servings updated to ${servings} for ${mealType} on ${date}`);
   
-  // Update the servings in the local scheduled meals array
-  const mealIndex = scheduledMeals.value.findIndex(
-    meal => meal.date === date && meal.mealType === mealType
-  );
-  
-  if (mealIndex > -1) {
-    scheduledMeals.value[mealIndex].recipe.servings = servings;
-    successMessage.value = `Updated servings to ${servings} for ${scheduledMeals.value[mealIndex].recipe.title}`;
-    showSuccessMessage.value = true;
-  }
 };
 
 // Format slot info for dialog
@@ -725,7 +669,7 @@ watch([selectedDifficulty, sortBy, selectedQuickFilter, selectedRecipeMealType, 
 });
 
 // Watch authentication status - force planning mode for authenticated users, browsing for unauthenticated
-watch(() => authStore.isAuthenticated, (isAuthenticated) => {
+watch(() => authStore.isAuthenticated, async (isAuthenticated) => {
   if (isAuthenticated) {
     // Default to planning mode for authenticated users
     currentMode.value = 'planning';
@@ -763,8 +707,13 @@ watch(() => route.path, (path) => {
 }, { immediate: true });
 
 // Lifecycle
-onMounted(() => {
-  recipeStore.fetchAllRecipes();
+onMounted(async () => {
+  console.log('RecipesView: Component mounted, loading data...');
+  // Load recipes and meal plans in parallel
+  await Promise.all([
+    recipeStore.fetchAllRecipes(),
+    // Only load meal plans if user is authenticated
+  ]);
   
   // Initialize mode from URL path and authentication status
   if (route.path === '/meals') {

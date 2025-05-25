@@ -1,8 +1,3 @@
-/**
- * Authentication Configuration
- * Simple config for JWT and auth settings
- */
-
 export const authConfig = {
   // JWT Secret - in production, use environment variable
   jwtSecret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',

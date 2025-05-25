@@ -8,70 +8,26 @@ datasource db {
 }
 
 model Recipe {
-  id                Int             @id @default(autoincrement())
-  title             String
-  description       String?         @db.Text
-  ingredientsText   String          @db.Text
-  instructions      String          @db.Text
-  prepTime          Int?            @default(15)
-  cookTime          Int?            @default(30)
-  servings          Int?            @default(4)
-  difficulty        String?         @default("medium")
-  imageUrl          String?
-  isPublished       Boolean         @default(true)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @default(now()) @updatedAt
-  userId            Int?
-  ingredients       Ingredient[]
-  breakfastMealDays MealDay[]       @relation("BreakfastRecipe")
-  dinnerMealDays    MealDay[]       @relation("DinnerRecipe")
-  lunchMealDays     MealDay[]       @relation("LunchRecipe")
-  user              User?           @relation(fields: [userId], references: [id])
-  tags              TagsOnRecipes[]
+  id           Int             @id @default(autoincrement())
+  title        String
+  description  String?         @db.Text
+  instructions String          @db.Text
+  prepTime     Int?            @default(15)
+  cookTime     Int?            @default(30)
+  servings     Int?            @default(4)
+  difficulty   String?         @default("medium")
+  imageUrl     String?
+  isPublished  Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now()) @updatedAt
+  userId       Int?
+  ingredients  Ingredient[]
+  user         User?           @relation(fields: [userId], references: [id])
+  tags         TagsOnRecipes[]
+  meals        Meal[]
 
   @@index([userId])
   @@index([title])
-}
-
-model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  name         String?
-  password     String
-  role         String     @default("user")
-  isActive     Boolean    @default(true)
-  lastLoginAt  DateTime?
-  profileImage String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now()) @updatedAt
-  mealPlans    MealPlan[]
-  recipes      Recipe[]
-
-  @@index([email])
-}
-
-model Tag {
-  id          Int             @id @default(autoincrement())
-  name        String          @unique
-  description String?
-  color       String?         @default("#3498db")
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @default(now()) @updatedAt
-  recipes     TagsOnRecipes[]
-
-  @@index([name])
-}
-
-model TagsOnRecipes {
-  recipeId   Int
-  tagId      Int
-  assignedAt DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-  recipe     Recipe   @relation(fields: [recipeId], references: [id])
-  tag        Tag      @relation(fields: [tagId], references: [id])
-
-  @@id([recipeId, tagId])
-  @@index([tagId], map: "TagsOnRecipes_tagId_fkey")
 }
 
 model Ingredient {
@@ -90,41 +46,59 @@ model Ingredient {
   @@index([name])
 }
 
-model MealPlan {
-  id        Int       @id @default(autoincrement())
-  name      String
-  startDate DateTime
-  endDate   DateTime
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  userId    Int
-  days      MealDay[]
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String?
+  password     String
+  role         String    @default("user")
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  profileImage String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  recipes      Recipe[]
+  meals        Meal[]
 
-  @@index([userId])
+  @@index([email])
 }
 
-model MealDay {
-  id              Int      @id @default(autoincrement())
-  day             String
-  date            DateTime
-  breakfast       String?
-  lunch           String?
-  dinner          String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now()) @updatedAt
-  mealPlanId      Int
-  breakfastId     Int?
-  lunchId         Int?
-  dinnerId        Int?
-  breakfastRecipe Recipe?  @relation("BreakfastRecipe", fields: [breakfastId], references: [id])
-  dinnerRecipe    Recipe?  @relation("DinnerRecipe", fields: [dinnerId], references: [id])
-  lunchRecipe     Recipe?  @relation("LunchRecipe", fields: [lunchId], references: [id])
-  mealPlan        MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+model RecipeTag {
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
+  description String?
+  recipes     TagsOnRecipes[]
 
-  @@index([mealPlanId])
-  @@index([breakfastId], map: "MealDay_breakfastId_fkey")
-  @@index([dinnerId], map: "MealDay_dinnerId_fkey")
-  @@index([lunchId], map: "MealDay_lunchId_fkey")
+  @@index([name])
+}
+
+model TagsOnRecipes {
+  recipeId   Int
+  tagId      Int
+  assignedAt DateTime @default(now())
+
+  recipe Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  tag    RecipeTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, tagId])
+  @@index([recipeId])
+  @@index([tagId])
+}
+
+model Meal {
+  id        Int      @id @default(autoincrement())
+  recipeId  Int
+  userId    Int? // Moved here
+  date      DateTime
+  servings  Int
+  mealType  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  recipe Recipe @relation(fields: [recipeId], references: [id])
+  user   User?  @relation(fields: [userId], references: [id])
+
+  @@index([recipeId])
+  @@index([date])
+  @@index([userId])
 }

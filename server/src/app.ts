@@ -1,7 +1,3 @@
-/**
- * Express application setup
- * Configures and exports the Express application instance
- */
 import express from 'express';
 import path from 'path';
 import cors from 'cors';

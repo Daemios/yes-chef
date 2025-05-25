@@ -1,11 +1,6 @@
-// Use our local definition of meal types
+// Simple meal types export
 export { 
-  MealPrepMode,
-  MealPrep,
-  PortionDate, 
-  CalendarMeal,
-  Meal,
-  mealUtils
+  Meal
 } from './meal-types';
 
 

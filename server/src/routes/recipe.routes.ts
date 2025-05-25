@@ -1,7 +1,3 @@
-/**
- * Recipe routes
- * Handles all recipe-related API endpoints
- */
 import express from 'express';
 import * as recipeController from '../controllers/recipe.controller';
 import { authenticateToken } from '../middleware/auth.middleware';

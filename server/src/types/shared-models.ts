@@ -13,12 +13,8 @@ import { User, UserProfile, LoginCredentials, RegistrationData } from '../../../
 export { User, UserProfile, LoginCredentials, RegistrationData };
 
 // Meal model exports
-import { Meal, MealPrep, CalendarMeal, PortionDate, MealPrepMode } from '../../../shared/models/meal.model';
-export { Meal, MealPrep, CalendarMeal, PortionDate, MealPrepMode };
-
-// Meal plan model exports
-import { MealDay, MealPlan, PrepTask } from '../../../shared/models/meal-plan.model';
-export { MealDay, MealPlan, PrepTask };
+import { Meal } from '../../../shared/models/meal.model';
+export { Meal };
 
 // Shopping model exports
 import { ShoppingList, ShoppingItem, ShoppingSection, ShoppingCategory } from '../../../shared/models/shopping.model';

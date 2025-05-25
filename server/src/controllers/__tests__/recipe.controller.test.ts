@@ -1,8 +1,3 @@
-/**
- * Recipe Controller Tests
- * Comprehensive tests for recipe CRUD endpoints
- */
-
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import app from '../../app';
@@ -16,12 +11,12 @@ import {
   generateTestToken,
   generateInvalidToken
 } from '../../utils/test.utils';
-import { RecipeRepository } from '../../repositories/recipe.repository';
+import { RecipeService } from '../../services/recipe.service';
 
 describe('Recipe Controller', () => {
   let testUser: any;
   let authToken: string;
-  let createdRecipeId: number;
+  let createdRecipeId: number | null;
 
   beforeEach(async () => {
     // Clean up any existing test data
@@ -40,12 +35,11 @@ describe('Recipe Controller', () => {
     
     authToken = loginResponse.body.token;
   });
-
   afterEach(async () => {
     // Clean up test data
     if (createdRecipeId) {
       try {
-        await RecipeRepository.delete(createdRecipeId);
+        await RecipeService.deleteRecipe(createdRecipeId);
       } catch (error) {
         // Recipe might already be deleted, ignore error
       }

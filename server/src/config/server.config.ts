@@ -1,8 +1,3 @@
-/**
- * Server configuration
- * Centralizes server configuration settings
- */
-
 // Environment variables with defaults
 export const config = {
   // Server configuration
